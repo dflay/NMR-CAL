@@ -1,3 +1,6 @@
+#ifndef KEITHLEY_INTERFACE_HH
+#define KEITHLEY_INTERFACE_HH
+
 // functions for comms with the Keithley DMM
 
 #include <iostream>
@@ -22,3 +25,5 @@ namespace keithley_interface {
    double get_resistance(int portNo);
 
 }
+
+#endif 
