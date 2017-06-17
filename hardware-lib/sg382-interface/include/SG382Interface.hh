@@ -41,7 +41,6 @@ namespace sg382_interface {
    int open_connection(const char *device_path);
    int close_connection(int rs232_handle);
    int clear_error(int rs232_handle); 
-   int check_input(const struct FuncGen myFuncGen); 
    int write_cmd(int rs232_handle,char *buffer);
    int ask(int rs232_handle,char *in_buffer,char *out_buffer);
 
@@ -54,7 +53,12 @@ namespace sg382_interface {
    int set_modulation_rate(int rs232_handle, double freq);
    int set_modulation_function(int rs232_handle, int flag);
    
-   int get_error(int rs232_handle,char *response); 
+   int get_bnc_output_state(int rs232_handle,int &state); 
+   int get_ntype_output_state(int rs232_handle,int &state); 
+   int get_bnc_amplitude(int rs232_handle,double &amp);  
+   int get_ntype_amplitude(int rs232_handle,double &amp);  
+   int get_frequency(int rs232_handle,double &freq);  
+   int get_error(int rs232_handle,char *response);
 
 }
 

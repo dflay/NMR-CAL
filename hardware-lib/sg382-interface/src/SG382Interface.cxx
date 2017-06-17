@@ -65,16 +65,7 @@ namespace sg382_interface {
       int rc = write_cmd(rs232_handle,buf); 
       return rc; 
    }
-   //______________________________________________________________________________
-   int get_error(int rs232_handle,char *response){
-      const int SIZE = 512; 
-      char buf[SIZE];
-      sprintf(buf,"LERR?\n"); 
-      int rc       = ask(rs232_handle,buf,response); 
-      int err_code = atoi(response); 
-      rc *= 1; 
-      return err_code;  
-   }
+
    //______________________________________________________________________________
    int ask(int rs232_handle,char *in_buffer,char *out_buffer){
       const int SIZE = 512;
@@ -190,6 +181,56 @@ namespace sg382_interface {
       sprintf(freq_str, "RATE %.14lf\n", freq);
       rc = write_cmd(rs232_handle,freq_str); 
       return rc;
+   }
+   //______________________________________________________________________________
+   int get_bnc_output_state(int rs232_handle,int &state){
+      char cmd[100],response[100];
+      sprintf(cmd,"ENBL?\n");
+      int rc = ask(rs232_handle,cmd,response); 
+      state = atoi(response); 
+      return rc;  
+   }
+   //______________________________________________________________________________
+   int get_ntype_output_state(int rs232_handle,int &state){
+      char cmd[100],response[100];
+      sprintf(cmd,"ENBR?\n");
+      int rc = ask(rs232_handle,cmd,response); 
+      state = atoi(response); 
+      return rc;  
+   }
+   //______________________________________________________________________________
+   int get_bnc_amplitude(int rs232_handle,double &amp){
+      char cmd[100],response[100];
+      sprintf(cmd,"AMPL?\n");
+      int rc = ask(rs232_handle,cmd,response); 
+      amp = atof(response); 
+      return rc;  
+   }
+   //______________________________________________________________________________
+   int get_ntype_amplitude(int rs232_handle,double &amp){
+      char cmd[100],response[100];
+      sprintf(cmd,"AMPR?\n");
+      int rc = ask(rs232_handle,cmd,response); 
+      amp = atof(response); 
+      return rc;  
+   }
+   //______________________________________________________________________________
+   int get_frequency(int rs232_handle,double &freq){
+      char cmd[100],response[100];
+      sprintf(cmd,"FREQ?\n");
+      int rc = ask(rs232_handle,cmd,response); 
+      freq = atof(response); 
+      return rc;  
+   }
+   //______________________________________________________________________________
+   int get_error(int rs232_handle,char *response){
+      const int SIZE = 512; 
+      char buf[SIZE];
+      sprintf(buf,"LERR?\n"); 
+      int rc       = ask(rs232_handle,buf,response); 
+      int err_code = atoi(response); 
+      rc *= 1; 
+      return err_code;  
    }
 
 }
