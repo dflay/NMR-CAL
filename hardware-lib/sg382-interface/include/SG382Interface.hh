@@ -14,6 +14,8 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
+// #include "CommDriver.hh"
+
 #define SG382_DISABLE              0x0                 
 #define SG382_ENABLE_AMPL_ONLY     0x1  
 #define SG382_ENABLE_FREQ_ONLY     0x2  

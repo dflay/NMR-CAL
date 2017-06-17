@@ -1,20 +1,36 @@
 #include "SG382Interface.hh"
 
 namespace sg382_interface { 
+   // //______________________________________________________________________________
+   // int open_connection(int type,const char *device_path){
+   //    int handle = -1; 
+   //    switch (type) { 
+   //       case comm_driver::kRS232:
+   //          handle = comm_driver::rs232_open_connection(device_path); 
+   //          break;
+   //       case comm_driver::kUSBTMC: 
+   //          break;
+   //       case comm_driver::kTCPIP: 
+   //          break;
+   //       default:
+   //          std::cout << "[sg382_interface::open_connection]: Invalid protocol!" << std::endl;
+   //    }
+   //    return handle;
+   // }
    //______________________________________________________________________________
    int open_connection(const char *device_path) {
       int rs232_handle=0;
       rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY);
       // rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
       if (rs232_handle < 0) { 
-	 printf("[SG382]: ERROR: Failed to open usb->serial port. \n");
-	 return -1; 
+         printf("[SG382]: ERROR: Failed to open usb->serial port. \n");
+         return -1; 
       }
 
       if ( tcgetattr(rs232_handle, &old_termios) != 0 ) {
-	 printf("[SG382]: ERROR: Failed to read original serial settings.\n");
-	 close(rs232_handle);
-	 exit(1);
+         printf("[SG382]: ERROR: Failed to read original serial settings.\n");
+         close(rs232_handle);
+         exit(1);
       }
 
       // 8 data bits, no parity, 1 stop bit, 9600 baud, hdw flow control
@@ -33,8 +49,8 @@ namespace sg382_interface {
 
       int rc = tcsetattr(rs232_handle, TCSANOW, &new_termios);
       if(rc<0){
-	 printf("[SG382]: Something's wrong. ERROR %d \n",rc);
-	 return -1;
+         printf("[SG382]: Something's wrong. ERROR %d \n",rc);
+         return -1;
       }
 
       tcflush(rs232_handle,TCIOFLUSH);
