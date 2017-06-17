@@ -84,13 +84,13 @@ namespace keithley_interface {
       return rc;
    }
    //______________________________________________________________________________
-   double get_resistance(int portNo){
+   int get_resistance(int portNo,double &R){
       const int SIZE = 512;
       char query[SIZE],response[SIZE];
       sprintf(query,"MEAS:RES?\n"); 
-      int rc   = ask(portNo,query,response);  
-      double R = atof(response); 
-      return R; 
+      int rc = ask(portNo,query,response);  
+      R      = atof(response); 
+      return rc; 
    }
    //______________________________________________________________________________
    int write_cmd(int portNo,const char *cmd){
