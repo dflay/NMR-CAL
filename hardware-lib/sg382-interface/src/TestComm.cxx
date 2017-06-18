@@ -1,4 +1,4 @@
-// test the keithley comms 
+// test the SG382 comms  
 
 #include <iostream>
 #include <fstream>
@@ -7,10 +7,12 @@
 #include "SG382Interface.hh"
 
 int main(){
-  
+
+   int protocol = comm_driver::kRS232;  
    std::string dev_path = "/dev/ttyUSB1"; 
-   int rs232_handle     = sg382_interface::open_connection( dev_path.c_str() ); 
-   int rc               = sg382_interface::close_connection(rs232_handle); 
+   int handle = sg382_interface::open_connection(protocol,dev_path.c_str() ); 
+   int rc     = sg382_interface::close_connection(protocol,handle); 
+   rc *= 1; 
 
    return 0;
 }

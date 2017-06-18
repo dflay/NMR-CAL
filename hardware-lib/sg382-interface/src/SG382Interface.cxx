@@ -1,117 +1,98 @@
 #include "SG382Interface.hh"
 
 namespace sg382_interface { 
-   // //______________________________________________________________________________
-   // int open_connection(int type,const char *device_path){
-   //    int handle = -1; 
-   //    switch (type) { 
-   //       case comm_driver::kRS232:
-   //          handle = comm_driver::rs232_open_connection(device_path); 
-   //          break;
-   //       case comm_driver::kUSBTMC: 
-   //          break;
-   //       case comm_driver::kTCPIP: 
-   //          break;
-   //       default:
-   //          std::cout << "[sg382_interface::open_connection]: Invalid protocol!" << std::endl;
-   //    }
-   //    return handle;
-   // }
    //______________________________________________________________________________
-   int open_connection(const char *device_path) {
-      int rs232_handle=0;
-      rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY);
-      // rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
-      if (rs232_handle < 0) { 
-         printf("[SG382]: ERROR: Failed to open usb->serial port. \n");
-         return -1; 
+   int open_connection(int type,const char *device_path){
+      int handle = -1; 
+      switch (type) { 
+         case comm_driver::kRS232:
+            handle = comm_driver::rs232_open_connection(device_path); 
+            break;
+         case comm_driver::kUSBTMC: 
+            break;
+         case comm_driver::kTCPIP: 
+            break;
+         default:
+            std::cout << "[sg382_interface::open_connection]: Invalid protocol!" << std::endl;
       }
-
-      if ( tcgetattr(rs232_handle, &old_termios) != 0 ) {
-         printf("[SG382]: ERROR: Failed to read original serial settings.\n");
-         close(rs232_handle);
-         exit(1);
+      return handle;
+   }
+   //______________________________________________________________________________
+   int close_connection(int type,int handle){
+      int rc=-1; 
+      switch (type) { 
+         case comm_driver::kRS232:
+            rc = comm_driver::rs232_close_connection(handle); 
+            break;
+         case comm_driver::kUSBTMC: 
+            break;
+         case comm_driver::kTCPIP: 
+            break;
+         default:
+            std::cout << "[sg382_interface::close_connection]: Invalid protocol!" << std::endl;
       }
-
-      // 8 data bits, no parity, 1 stop bit, 9600 baud, hdw flow control
-      struct termios new_termios;
-      // new_termios.c_cflag = CS8 | B9600 | CRTSCTS;
-      // new_termios.c_cflag = CS8 | B115200 | CRTSCTS;
-      new_termios.c_cflag     &=  ~PARENB;        // Make 8n1  
-      new_termios.c_cflag     &=  ~CSTOPB;
-      new_termios.c_cflag     &=  ~CSIZE;
-      new_termios.c_cflag     |=  CS8;
-      new_termios.c_cflag     &=  ~CRTSCTS;       // no flow control 
-
-      // set baud rate 
-      cfsetospeed(&new_termios,B115200);
-      cfsetispeed(&new_termios,B115200);
-
-      int rc = tcsetattr(rs232_handle, TCSANOW, &new_termios);
-      if(rc<0){
-         printf("[SG382]: Something's wrong. ERROR %d \n",rc);
-         return -1;
-      }
-
-      tcflush(rs232_handle,TCIOFLUSH);
-
-      usleep(1E5);
-      return rs232_handle;
-   }
-   //______________________________________________________________________________
-   int close_connection(int rs232_handle){
-      tcsetattr(rs232_handle,TCSANOW,&old_termios);      // restore old settings
-      return close(rs232_handle);
-   }
-   //______________________________________________________________________________
-   int write_cmd(int rs232_handle, char *buffer){
-      int rc=0;
-      int buffer_size = (int)( strlen(buffer) ); 
-      rc = write(rs232_handle, buffer, buffer_size); 
-      usleep(SG382_SLEEP_TIME);
-      write(rs232_handle, "*WAI\n", 5); 
-      usleep(SG382_SLEEP_TIME);
-      return rc; 
-   }
-   //______________________________________________________________________________
-   int clear_error(int rs232_handle){
-      const int SIZE = 100; 
-      char buf[SIZE];
-      sprintf(buf,"*CLS\n");
-      int rc = write_cmd(rs232_handle,buf); 
-      return rc; 
-   }
-
-   //______________________________________________________________________________
-   int ask(int rs232_handle,char *in_buffer,char *out_buffer){
-      const int SIZE = 512;
-      int in_size = (int)( strlen(in_buffer) ); 
-      write(rs232_handle,in_buffer,in_size);
-      usleep(SG382_SLEEP_TIME);
-      int rc = read(rs232_handle,out_buffer,SIZE);
-      usleep(SG382_SLEEP_TIME);
       return rc;
    }
    //______________________________________________________________________________
-   int set_freq(int rs232_handle,double freq) {
+   int write_cmd(int type,int handle,const char *buffer){
+      int rc=0;
+       switch (type) { 
+         case comm_driver::kRS232:
+            rc = comm_driver::rs232_write(handle,buffer); 
+            break;
+         case comm_driver::kUSBTMC: 
+            break;
+         case comm_driver::kTCPIP: 
+            break;
+         default:
+            std::cout << "[sg382_interface::write_cmd]: Invalid protocol!" << std::endl;
+      }
+      return rc;     
+   }
+   //______________________________________________________________________________
+   int ask(int type,int handle,const char *query,char *response){
+      int rc=0;
+       switch (type) { 
+         case comm_driver::kRS232:
+            rc = comm_driver::rs232_ask(handle,query,response); 
+            break;
+         case comm_driver::kUSBTMC: 
+            break;
+         case comm_driver::kTCPIP: 
+            break;
+         default:
+            std::cout << "[sg382_interface::ask]: Invalid protocol!" << std::endl;
+      }
+      return rc;
+   }
+   //______________________________________________________________________________
+   int clear_error(int type,int handle){
+      const int SIZE = 100; 
+      char cmd[SIZE];
+      sprintf(cmd,"*CLS\n");
+      int rc = write_cmd(type,handle,cmd); 
+      return rc; 
+   }
+   //______________________________________________________________________________
+   int set_freq(int type,int handle,double freq) {
       char freq_str[100];
       sprintf(freq_str, "FREQ %.7lf\n",freq);
-      return write_cmd(rs232_handle, freq_str);
+      return write_cmd(type,handle,freq_str);
    }
    //______________________________________________________________________________
-   int set_bnc_amp(int rs232_handle,double amp) {
+   int set_bnc_amp(int type,int handle,double amp) {
       char amp_str[100];
       sprintf(amp_str, "AMPL %.7lf\n",amp);
-      return write_cmd(rs232_handle, amp_str);
+      return write_cmd(type,handle,amp_str);
    }
    //______________________________________________________________________________
-   int set_ntype_amp(int rs232_handle,double amp) {
+   int set_ntype_amp(int type,int handle,double amp) {
       char amp_str[100];
       sprintf(amp_str, "AMPR %.7lf\n",amp);
-      return write_cmd(rs232_handle,amp_str);
+      return write_cmd(type,handle,amp_str);
    }
    //______________________________________________________________________________
-   int set_bnc_output_state(int rs232_handle, int flag) {
+   int set_bnc_output_state(int type,int handle,int flag) {
       int rc=-1;
       char cmd[100]; 
       switch (flag) {
@@ -124,11 +105,11 @@ namespace sg382_interface {
 	 default:
 	    printf("[sg382_interface::set_bnc_output]: ERROR: Invalid flag passed.\n");
       }
-      rc = write_cmd(rs232_handle,cmd); 
+      rc = write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
-   int set_ntype_output_state(int rs232_handle, int flag) {
+   int set_ntype_output_state(int type,int handle,int flag) {
       int rc=-1;
       char cmd[100]; 
       switch (flag) {
@@ -141,11 +122,11 @@ namespace sg382_interface {
 	 default:
 	    printf("[sg382_interface::set_ntype_output]: ERROR: Invalid flag passed.\n");
       }
-      rc = write_cmd(rs232_handle,cmd); 
+      rc = write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
-   int set_modulation_state(int rs232_handle, int flag) {
+   int set_modulation_state(int type,int handle,int flag) {
       int rc=-1;
       char cmd[100]; 
       switch (flag) {
@@ -158,11 +139,11 @@ namespace sg382_interface {
 	 default:
 	    printf("[sg382_interface::set_modulation]: ERROR: Invalid flag passed.\n");
       }
-      rc = write_cmd(rs232_handle,cmd); 
+      rc = write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
-   int set_modulation_function(int rs232_handle, int flag) {
+   int set_modulation_function(int type,int handle, int flag) {
       int rc=-1;
       char cmd[100]; 
       switch (flag) {
@@ -187,66 +168,65 @@ namespace sg382_interface {
 	 default:
 	    printf("[sg382_interface::set_modulation_function]: ERROR: Invalid flag passed.\n");
       }
-      rc = write_cmd(rs232_handle,cmd); 
+      rc = write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
-   int set_modulation_rate(int rs232_handle,double freq) {
+   int set_modulation_rate(int type,int handle,double freq) {
       int rc = 0;
       char freq_str[100];
       sprintf(freq_str, "RATE %.14lf\n", freq);
-      rc = write_cmd(rs232_handle,freq_str); 
+      rc = write_cmd(type,handle,freq_str); 
       return rc;
    }
    //______________________________________________________________________________
-   int get_bnc_output_state(int rs232_handle,int &state){
-      char cmd[100],response[100];
-      sprintf(cmd,"ENBL?\n");
-      int rc = ask(rs232_handle,cmd,response); 
+   int get_bnc_output_state(int type,int handle,int &state){
+      char query[100],response[100];
+      sprintf(query,"ENBL?\n");
+      int rc = ask(type,handle,query,response); 
       state = atoi(response); 
       return rc;  
    }
    //______________________________________________________________________________
-   int get_ntype_output_state(int rs232_handle,int &state){
-      char cmd[100],response[100];
-      sprintf(cmd,"ENBR?\n");
-      int rc = ask(rs232_handle,cmd,response); 
+   int get_ntype_output_state(int type,int handle,int &state){
+      char query[100],response[100];
+      sprintf(query,"ENBR?\n");
+      int rc = ask(type,handle,query,response); 
       state = atoi(response); 
       return rc;  
    }
    //______________________________________________________________________________
-   int get_bnc_amplitude(int rs232_handle,double &amp){
-      char cmd[100],response[100];
-      sprintf(cmd,"AMPL?\n");
-      int rc = ask(rs232_handle,cmd,response); 
+   int get_bnc_amplitude(int type,int handle,double &amp){
+      char query[100],response[100];
+      sprintf(query,"AMPL?\n");
+      int rc = ask(type,handle,query,response); 
       amp = atof(response); 
       return rc;  
    }
    //______________________________________________________________________________
-   int get_ntype_amplitude(int rs232_handle,double &amp){
-      char cmd[100],response[100];
-      sprintf(cmd,"AMPR?\n");
-      int rc = ask(rs232_handle,cmd,response); 
+   int get_ntype_amplitude(int type,int handle,double &amp){
+      char query[100],response[100];
+      sprintf(query,"AMPR?\n");
+      int rc = ask(type,handle,query,response); 
       amp = atof(response); 
       return rc;  
    }
    //______________________________________________________________________________
-   int get_frequency(int rs232_handle,double &freq){
-      char cmd[100],response[100];
-      sprintf(cmd,"FREQ?\n");
-      int rc = ask(rs232_handle,cmd,response); 
+   int get_frequency(int type,int handle,double &freq){
+      char query[100],response[100];
+      sprintf(query,"FREQ?\n");
+      int rc = ask(type,handle,query,response); 
       freq = atof(response); 
       return rc;  
    }
    //______________________________________________________________________________
-   int get_error(int rs232_handle,char *response){
+   int get_error(int type,int handle,char *response){
       const int SIZE = 512; 
-      char buf[SIZE];
-      sprintf(buf,"LERR?\n"); 
-      int rc       = ask(rs232_handle,buf,response); 
+      char query[SIZE];
+      sprintf(query,"LERR?\n"); 
+      int rc       = ask(type,handle,query,response); 
       int err_code = atoi(response); 
       rc *= 1; 
       return err_code;  
    }
-
 }

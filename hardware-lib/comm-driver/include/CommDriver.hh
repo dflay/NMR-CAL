@@ -23,7 +23,7 @@ namespace comm_driver {
       kTCPIP  = 2
    };
 
-   struct termios rs232_old_termios;
+   // struct termios rs232_old_termios;
 
    int rs232_open_connection(const char *device_path);
    int rs232_close_connection(int rs232_handle); 

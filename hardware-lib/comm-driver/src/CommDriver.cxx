@@ -11,6 +11,7 @@ namespace comm_driver {
          return -1;
       }
 
+      struct termios rs232_old_termios; 
       if ( tcgetattr(rs232_handle, &rs232_old_termios) != 0 ) {
          printf("[driver::rs232_open_connection]: ERROR: Failed to read original serial settings.\n");
          close(rs232_handle);
@@ -46,18 +47,18 @@ namespace comm_driver {
    }
    //______________________________________________________________________________
    int rs232_close_connection(int rs232_handle){
-      tcsetattr(rs232_handle,TCSANOW,&rs232_old_termios);      // restore old settings
+      // tcsetattr(rs232_handle,TCSANOW,&rs232_old_termios);      // restore old settings
       return close(rs232_handle);
    }
    //______________________________________________________________________________
-   int rs232_write(int handle, char *buffer){
+   int rs232_write(int handle, const char *buffer){
       int rc=0;
       int buffer_size = (int)( strlen(buffer) );
       rc = write(handle, buffer, buffer_size);
       return rc;
    }
    //______________________________________________________________________________
-   int rs232_ask(int handle,char *query,char *response){
+   int rs232_ask(int handle,const char *query,char *response){
       const int SIZE = 512;
       int qSIZE = (int)( strlen(query) );
       int rc = write(handle,query,qSIZE);
