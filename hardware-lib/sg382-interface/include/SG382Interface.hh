@@ -1,7 +1,7 @@
 #ifndef SG382_INTERFACE_HH
 #define SG382_INTERFACE_HH
 
-// Library to control Stanford Research Systems RG382 RF Signal Generator 
+// Library to control Stanford Research Systems SG382 RF Signal Generator 
 
 #include <cstdlib>
 #include <iostream>
@@ -40,8 +40,6 @@ namespace sg382_interface {
    int open_connection(int type,const char *device_path);
    int close_connection(int type,int handle);
    int clear_error(int type,int handle); 
-   int write_cmd(int type,int handle,const char *buffer);
-   int ask(int type,int handle,const char *in_buffer,char *out_buffer);
 
    int set_freq(int type,int handle,double freq); 
    int set_ntype_amp(int type,int handle,double amp); 

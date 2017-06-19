@@ -9,8 +9,8 @@
 int main(){
 
    int protocol = comm_driver::kRS232;  
-   std::string dev_path = "/dev/ttyUSB1"; 
-   int handle = sg382_interface::open_connection(protocol,dev_path.c_str() ); 
+   std::string dev_addr = "/dev/ttyUSB1"; 
+   int handle = sg382_interface::open_connection( protocol,dev_addr.c_str() ); 
    int rc     = sg382_interface::close_connection(protocol,handle); 
    rc *= 1; 
 

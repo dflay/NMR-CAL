@@ -53,81 +53,50 @@ namespace sg382_interface {
    //______________________________________________________________________________
    int set_bnc_output_state(int type,int handle,int flag) {
       int rc=-1;
-      char cmd[100]; 
-      switch (flag) {
-	 case kDISABLE:
-            sprintf(cmd,"ENBL0\n");  
-	    break;
-	 case kENABLE:
-            sprintf(cmd,"ENBL1\n");  
-	    break;
-	 default:
-	    printf("[sg382_interface::set_bnc_output]: ERROR: Invalid flag passed.\n");
-      }
-      rc = comm_driver::write_cmd(type,handle,cmd); 
+      char cmd[100];
+      if(flag==kDISABLE || flag==kENABLE){
+	 sprintf(cmd,"ENBL%d\n",flag);  
+         rc = comm_driver::write_cmd(type,handle,cmd); 
+      }else{
+	 printf("[sg382_interface::set_bnc_output]: ERROR: Invalid flag '%d' passed.\n",flag);
+      } 
       return rc;
    }
    //______________________________________________________________________________
    int set_ntype_output_state(int type,int handle,int flag) {
       int rc=-1;
       char cmd[100]; 
-      switch (flag) {
-	 case kDISABLE:
-            sprintf(cmd,"ENBR0\n"); 
-	    break;
-	 case kENABLE:
-            sprintf(cmd,"ENBR0\n"); 
-	    break;
-	 default:
-	    printf("[sg382_interface::set_ntype_output]: ERROR: Invalid flag passed.\n");
+      if(flag==kDISABLE || flag==kENABLE){
+	 sprintf(cmd,"ENBR%d\n",flag);  
+         rc = comm_driver::write_cmd(type,handle,cmd); 
+      }else{
+	 printf("[sg382_interface::set_ntype_output]: ERROR: Invalid flag '%d' passed.\n",flag);
       }
-      rc = comm_driver::write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
    int set_modulation_state(int type,int handle,int flag) {
       int rc=-1;
       char cmd[100]; 
-      switch (flag) {
-	 case kDISABLE:  
-            sprintf(cmd,"MODL0\n");  
-	    break;
-	 case kENABLE:   
-            sprintf(cmd,"MODL1\n");  
-	    break;
-	 default:
-	    printf("[sg382_interface::set_modulation]: ERROR: Invalid flag passed.\n");
+      if(flag==kDISABLE || flag==kENABLE){
+	 sprintf(cmd,"MODL%d\n",flag);  
+         rc = comm_driver::write_cmd(type,handle,cmd); 
+      }else{
+	 printf("[sg382_interface::set_modulation_state]: ERROR: Invalid flag '%d' passed.\n",flag);
       }
-      rc = comm_driver::write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
    int set_modulation_function(int type,int handle, int flag) {
       int rc=-1;
-      char cmd[100]; 
-      switch (flag) {
-	 case kSINE:  
-            sprintf(cmd,"MFNC0\n");  
-	    break;
-	 case kRAMP:   
-            sprintf(cmd,"MFNC1\n");  
-	    break;
-	 case kTRIANGLE:   
-            sprintf(cmd,"MFNC2\n");  
-	    break;
-	 case kSQUARE:   
-            sprintf(cmd,"MFNC3\n");  
-	    break;
-	 case kNOISE:  
-            sprintf(cmd,"MFNC4\n");  
-	    break;
-	 case kEXTERNAL:   
-            sprintf(cmd,"MFNC5\n");  
-	    break;
-	 default:
-	    printf("[sg382_interface::set_modulation_function]: ERROR: Invalid flag passed.\n");
+      char cmd[100];
+      if (flag==kSINE   || flag==kRAMP  || flag==kTRIANGLE ||
+          flag==kSQUARE || flag==kNOISE || flag==kEXTERNAL){
+	 sprintf(cmd,"MFNC%d\n",flag);  
+	 rc = comm_driver::write_cmd(type,handle,cmd); 
+      }else{
+	 printf("[sg382_interface::set_modulation_function]: ERROR: Invalid flag passed.\n");
       }
-      rc = comm_driver::write_cmd(type,handle,cmd); 
       return rc;
    }
    //______________________________________________________________________________
