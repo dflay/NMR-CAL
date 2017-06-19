@@ -1,6 +1,70 @@
 #include "CommDriver.hh"
 //______________________________________________________________________________
-namespace comm_driver { 
+namespace comm_driver {
+   //______________________________________________________________________________
+   int open_connection(int type,const char *device_path){
+      int handle = -1;
+      switch (type) {
+         case comm_driver::kRS232:
+            handle = rs232_open_connection(device_path);
+            break;
+         case comm_driver::kUSBTMC:
+            break;
+         case comm_driver::kTCPIP:
+            break;
+         default:
+            std::cout << "[comm_driver::open_connection]: Invalid protocol!" << std::endl;
+      }
+      return handle;
+   }
+   //______________________________________________________________________________
+   int close_connection(int type,int handle){
+      int rc=-1;
+      switch (type) {
+         case comm_driver::kRS232:
+            rc = rs232_close_connection(handle);
+            break;
+         case comm_driver::kUSBTMC:
+            break;
+         case comm_driver::kTCPIP:
+            break;
+         default:
+            std::cout << "[comm_driver::close_connection]: Invalid protocol!" << std::endl;
+      }
+      return rc;
+   } 
+   //______________________________________________________________________________
+   int write_cmd(int type,int handle,const char *buffer){
+      int rc=0;
+      switch (type) {
+	 case comm_driver::kRS232:
+	    rc = rs232_write(handle,buffer);
+	    break;
+	 case comm_driver::kUSBTMC:
+	    break;
+	 case comm_driver::kTCPIP:
+	    break;
+	 default:
+	    std::cout << "[sg382_interface::write_cmd]: Invalid protocol!" << std::endl;
+      }
+      return rc;
+   }
+   //______________________________________________________________________________
+   int query(int type,int handle,const char *cmd,char *response){
+      int rc=0;
+       switch (type) {
+         case comm_driver::kRS232:
+            rc = rs232_ask(handle,cmd,response);
+            break;
+         case comm_driver::kUSBTMC: 
+            break;
+         case comm_driver::kTCPIP:
+            break;
+         default:
+            std::cout << "[sg382_interface::ask]: Invalid protocol!" << std::endl;
+      }
+      return rc;
+   }
    //______________________________________________________________________________
    int rs232_open_connection(const char *device_path) {
       int rs232_handle=0;

@@ -23,8 +23,13 @@ namespace comm_driver {
       kTCPIP  = 2
    };
 
-   // struct termios rs232_old_termios;
-
+   // generic functions 
+   int open_connection(int type,const char *device_path); 
+   int close_connection(int type,int handle); 
+   int write_cmd(int type,int handle,const char *buffer);
+   int query(int type,int handle,const char *cmd,char *response);
+ 
+   // RS232 functions 
    int rs232_open_connection(const char *device_path);
    int rs232_close_connection(int rs232_handle); 
    int rs232_write(int handle,const char *cmd);
