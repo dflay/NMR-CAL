@@ -2,108 +2,65 @@
 
 namespace keithley_interface {
    //______________________________________________________________________________
-   int open_connection(const char *dev_path){
-      int SIZE = 128;
-      char DEV_PATH[SIZE]; 
-      sprintf(DEV_PATH,"%s0",dev_path);
-
-      // FIXME: is there a better way to do this?  
-      std::stringstream ss;
-      std::string s;
-      std::ifstream in(DEV_PATH);
-
-      // look for the keithley 
-      if( in.good() ){
-	 ss << in.rdbuf();
-	 in.close();
-      }else{
-	 std::cout << "No USBTMC devices found" << std::endl;
-	 return 1;
-      }
-
-      char devName[SIZE];
-      char mfg[] = "KEITHLEY"; 
-
-      for(int i=0;i<16;i++){
-	 std::getline(ss, s, '\n');
-	 if(s.find(mfg) != s.size() - 1){
-	    std::cout << s << std::endl;
-	    sprintf(devName, "/dev/usbtmc%i", i);
-	 }
-      }
-
-      int portNo=-1; 
-      portNo = open(devName,O_RDWR);
-      return portNo;   
+   int open_connection(int type,const char *dev_name,const char *dev_path){
+      int handle = comm_driver::open_connection(type,dev_name,dev_path); 
+      return handle; 
    }
    //______________________________________________________________________________
-   int close_connection(int portNo){
-      int rc = close(portNo);
+   int close_connection(int type,int handle){
+      int rc = comm_driver::close_connection(type,handle);
       return rc; 
    }
    //______________________________________________________________________________
-   int get_device_id(int portNo,char *response){
+   int get_device_id(int type,int portNo,char *response){
       const int SIZE = 512;
       char query[SIZE];
       sprintf(query,"*IDN?\n"); 
-      int rc = ask(portNo,query,response);
+      int rc = comm_driver::query(type,portNo,query,response);
       return rc; 
    }
    //______________________________________________________________________________
-   int get_mode(int portNo,char *response){
+   int get_mode(int type,int portNo,char *response){
       const int SIZE = 512; 
       char query[SIZE]; 
       sprintf(query,"SENS:FUNC?\n"); 
-      int rc = ask(portNo,query,response);
+      int rc = comm_driver::query(type,portNo,query,response);
       return rc;   
    }
    //______________________________________________________________________________
-   int check_errors(int portNo,char *err_msg){
+   int check_errors(int type,int portNo,char *err_msg){
       const int SIZE = 512; 
-      char query[SIZE],response[SIZE]; 
+      char query[SIZE]; 
       sprintf(query,"SYST:ERR?\n");
-      int rc = ask(portNo,query,err_msg);
+      int rc = comm_driver::query(type,portNo,query,err_msg);
       // FIXME: parse the string; it's going to be an error code and a message
       printf("keithley error message: %s \n",err_msg); 
       return rc;
    }
    //______________________________________________________________________________
-   int set_to_remote_mode(int portNo){
+   int set_to_remote_mode(int type,int portNo){
       const int SIZE = 512;
       char cmd[SIZE];
       sprintf(cmd,"SYST:REM\n"); 
-      int rc   = write_cmd(portNo,cmd);  
+      int rc   = comm_driver::write_cmd(type,portNo,cmd);  
       return rc;
    }
    //______________________________________________________________________________
-   int set_range(int portNo,double maxRange){
+   int set_range(int type,int portNo,double maxRange){
       const int SIZE = 512;
       char cmd[SIZE];
       sprintf(cmd,"CONF:RES %.3lf\n",maxRange); 
-      int rc   = write_cmd(portNo,cmd);  
+      int rc   = comm_driver::write_cmd(type,portNo,cmd);  
       return rc;
    }
    //______________________________________________________________________________
-   int get_resistance(int portNo,double &R){
+   int get_resistance(int type,int portNo,double &R){
       const int SIZE = 512;
       char query[SIZE],response[SIZE];
       sprintf(query,"MEAS:RES?\n"); 
-      int rc = ask(portNo,query,response);  
+      int rc = comm_driver::query(type,portNo,query,response);  
       R      = atof(response); 
       return rc; 
-   }
-   //______________________________________________________________________________
-   int write_cmd(int portNo,const char *cmd){
-      int rc = write( portNo,cmd,strlen(cmd) );  
-      return rc; 
-   }
-   //______________________________________________________________________________
-   int ask(int portNo,const char *query,char *response){
-      int SIZE = 512; 
-      int r = write_cmd(portNo,query);   
-      int b = read(portNo,&response,SIZE);
-      if(r!=0||b!=0) strcpy(response,"NO RESPONSE");    // comms failed   
-      return b; 
    }
 
 }  // ::keithley_interface 

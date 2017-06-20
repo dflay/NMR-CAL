@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream> 
 #include <unistd.h> 
@@ -24,7 +25,7 @@ namespace comm_driver {
    };
 
    // generic functions 
-   int open_connection(int type,const char *device_path); 
+   int open_connection(int type,const char *device_name,const char *device_path); 
    int close_connection(int type,int handle); 
    int write_cmd(int type,int handle,const char *buffer);
    int query(int type,int handle,const char *cmd,char *response);
@@ -34,6 +35,12 @@ namespace comm_driver {
    int rs232_close_connection(int rs232_handle); 
    int rs232_write(int handle,const char *cmd);
    int rs232_ask(int handle,const char *query,char *response); 
+
+   // USBTMC functions 
+   int usbtmc_open_connection(const char *dev_name,const char *device_path); 
+   int usbtmc_close_connection(int handle); 
+   int usbtmc_write(int handle,const char *cmd);
+   int usbtmc_ask(int handle,const char *query,char *response); 
 
 }
 

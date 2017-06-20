@@ -2,13 +2,14 @@
 //______________________________________________________________________________
 namespace comm_driver {
    //______________________________________________________________________________
-   int open_connection(int type,const char *device_path){
+   int open_connection(int type,const char *device_name,const char *device_path){
       int handle = -1;
       switch (type) {
          case comm_driver::kRS232:
             handle = rs232_open_connection(device_path);
             break;
          case comm_driver::kUSBTMC:
+            handle = usbtmc_open_connection(device_name,device_path); 
             break;
          case comm_driver::kTCPIP:
             break;
@@ -21,10 +22,11 @@ namespace comm_driver {
    int close_connection(int type,int handle){
       int rc=-1;
       switch (type) {
-         case comm_driver::kRS232:
-            rc = rs232_close_connection(handle);
-            break;
-         case comm_driver::kUSBTMC:
+	 case comm_driver::kRS232:
+	    rc = rs232_close_connection(handle);
+	    break;
+	 case comm_driver::kUSBTMC:
+	    rc = usbtmc_close_connection(handle); 
             break;
          case comm_driver::kTCPIP:
             break;
@@ -115,12 +117,11 @@ namespace comm_driver {
       return close(rs232_handle);
    }
    //______________________________________________________________________________
-   int rs232_write(int handle, const char *buffer){
-      int rc=0;
-      int buffer_size = (int)( strlen(buffer) );
-      rc = write(handle, buffer, buffer_size);
+   int rs232_write(int handle,const char *cmd){
+      int rc = write( handle,cmd,strlen(cmd) );
       return rc;
    }
+
    //______________________________________________________________________________
    int rs232_ask(int handle,const char *query,char *response){
       const int SIZE = 512;
@@ -133,4 +134,55 @@ namespace comm_driver {
       }
       return rc;
    }
+   //______________________________________________________________________________
+   int usbtmc_open_connection(const char *dev_name,const char *dev_path){
+      int SIZE = 128;
+      char DEV_PATH[SIZE],DEV_FULL_PATH[SIZE];
+      sprintf(DEV_PATH,"%s0",dev_path);
+
+      // FIXME: is there a better way to do this?  
+      std::stringstream ss;
+      std::string s;
+      std::ifstream in(DEV_PATH);
+
+      // look for the keithley 
+      if( in.good() ){
+         ss << in.rdbuf();
+         in.close();
+      }else{
+         std::cout << "No USBTMC devices found" << std::endl;
+         return 1;
+      }
+
+      for(int i=0;i<16;i++){
+         std::getline(ss, s, '\n');
+         if(s.find(dev_name) != s.size() - 1){
+            std::cout << s << std::endl;
+            sprintf(DEV_FULL_PATH, "/dev/usbtmc%i", i);
+         }
+      }
+
+      int portNo=-1;
+      portNo = open(DEV_FULL_PATH,O_RDWR);
+      return portNo;
+   }
+   //______________________________________________________________________________
+   int usbtmc_close_connection(int handle){
+      int rc = close(handle);
+      return rc;
+   }  
+   //______________________________________________________________________________
+   int usbtmc_write(int handle,const char *cmd){
+      int rc = write( handle,cmd,strlen(cmd) );
+      return rc;
+   }
+   //______________________________________________________________________________
+   int usbtmc_ask(int portNo,const char *query,char *response){
+      int SIZE = 512;
+      int r = usbtmc_write(portNo,query);
+      int b = read(portNo,&response,SIZE);
+      if(r!=0||b!=0) strcpy(response,"NO RESPONSE");    // comms failed   
+      return b;
+   }
+
 }

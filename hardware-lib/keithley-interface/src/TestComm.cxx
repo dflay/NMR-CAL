@@ -8,10 +8,13 @@
 
 int main(){
   
+   std::string dev_name = "KEITHLEY"; 
    std::string dev_path = "/dev/usbtmc"; 
-   
-   int portNo = keithley_interface::open_connection( dev_path.c_str() ); 
-   int rc     = keithley_interface::close_connection(portNo); 
+  
+   int protocol = comm_driver::kUSBTMC; 
+ 
+   int portNo = keithley_interface::open_connection( protocol,dev_name.c_str(),dev_path.c_str() ); 
+   int rc     = keithley_interface::close_connection(protocol,portNo);
 
-   return 0;
+   return rc;
 }
