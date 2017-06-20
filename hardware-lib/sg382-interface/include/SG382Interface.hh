@@ -37,7 +37,7 @@ namespace sg382_interface {
 
    const int SG382_SLEEP_TIME = 100; 
 
-   int open_connection(int type,const char *device_path);
+   int open_connection(int type,const char *device_name,const char *device_path);
    int close_connection(int type,int handle);
    int clear_error(int type,int handle); 
 

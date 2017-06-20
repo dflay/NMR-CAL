@@ -2,8 +2,8 @@
 
 namespace sg382_interface { 
    //______________________________________________________________________________
-   int open_connection(int type,const char *device_path){
-      int handle = comm_driver::open_connection(type,device_path); 
+   int open_connection(int type,const char *device_name,const char *device_path){
+      int handle = comm_driver::open_connection(type,device_name,device_path); 
       return handle;
    }
    //______________________________________________________________________________
