@@ -14,27 +14,26 @@ namespace keithley_interface {
    //______________________________________________________________________________
    int get_device_id(int type,int portNo,char *response){
       const int SIZE = 512;
-      char query[SIZE];
-      sprintf(query,"*IDN?\n"); 
-      int rc = comm_driver::query(type,portNo,query,response);
+      char cmd[SIZE];
+      sprintf(cmd,"*IDN?\n"); 
+      int rc = comm_driver::query(type,portNo,cmd,response);
       return rc; 
    }
    //______________________________________________________________________________
    int get_mode(int type,int portNo,char *response){
       const int SIZE = 512; 
-      char query[SIZE]; 
-      sprintf(query,"SENS:FUNC?\n"); 
-      int rc = comm_driver::query(type,portNo,query,response);
+      char cmd[SIZE]; 
+      sprintf(cmd,"SENS:FUNC?\n"); 
+      int rc = comm_driver::query(type,portNo,cmd,response);
       return rc;   
    }
    //______________________________________________________________________________
    int check_errors(int type,int portNo,char *err_msg){
       const int SIZE = 512; 
-      char query[SIZE]; 
-      sprintf(query,"SYST:ERR?\n");
-      int rc = comm_driver::query(type,portNo,query,err_msg);
+      char cmd[SIZE]; 
+      sprintf(cmd,"SYST:ERR?\n");
+      int rc = comm_driver::query(type,portNo,cmd,err_msg);
       // FIXME: parse the string; it's going to be an error code and a message
-      printf("keithley error message: %s \n",err_msg); 
       return rc;
    }
    //______________________________________________________________________________

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <sstream> 
 #include <unistd.h> 

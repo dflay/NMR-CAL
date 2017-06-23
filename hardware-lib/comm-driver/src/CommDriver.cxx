@@ -162,6 +162,8 @@ namespace comm_driver {
          }
       }
 
+      std::cout << "Device found at: " << DEV_FULL_PATH << std::endl; 
+
       int portNo=-1;
       portNo = open(DEV_FULL_PATH,O_RDWR);
       return portNo;
@@ -181,6 +183,7 @@ namespace comm_driver {
       int SIZE = 512;
       int r = usbtmc_write(portNo,query);
       int b = read(portNo,&response,SIZE);
+      std::cout << response << std::endl;
       if(r!=0||b!=0) strcpy(response,"NO RESPONSE");    // comms failed   
       return b;
    }
