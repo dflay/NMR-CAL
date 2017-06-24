@@ -17,6 +17,7 @@ namespace keithley_interface {
    int open_connection(int type,const char *dev_name,const char *dev_path);
    int close_connection(int type,int portNo);
    int check_errors(int type,int portNo,char *err_msg); 
+   int clear_errors(int type,int portNo); 
 
    int set_to_remote_mode(int type,int portNo); 
    int set_range(int type,int portNo,double maxRange); 

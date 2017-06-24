@@ -26,13 +26,16 @@ int main(){
 
    double R=0;
    rc = keithley_interface::get_resistance(protocol,portNo,R);
-
    std::cout << "Resistance = " << R << std::endl; 
  
    strcpy(msg,""); 
    rc = keithley_interface::check_errors(protocol,portNo,msg); 
-   std::cout << msg << std::endl;  
+   std::cout << "Error code " << rc << ": " << msg << std::endl;  
    strcpy(msg,""); 
+
+   rc = keithley_interface::clear_errors(protocol,portNo); 
+   rc = keithley_interface::check_errors(protocol,portNo,msg); 
+   std::cout << "Error code " << rc << ": " << msg << std::endl;  
  
    rc = keithley_interface::close_connection(protocol,portNo);
 

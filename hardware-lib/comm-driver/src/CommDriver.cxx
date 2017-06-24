@@ -43,6 +43,7 @@ namespace comm_driver {
 	    rc = rs232_write(handle,buffer);
 	    break;
 	 case comm_driver::kUSBTMC:
+            rc = usbtmc_write(handle,buffer); 
 	    break;
 	 case comm_driver::kTCPIP:
 	    break;
@@ -59,6 +60,7 @@ namespace comm_driver {
             rc = rs232_ask(handle,cmd,response);
             break;
          case comm_driver::kUSBTMC: 
+            rc = usbtmc_ask(handle,cmd,response); 
             break;
          case comm_driver::kTCPIP:
             break;
@@ -180,12 +182,17 @@ namespace comm_driver {
    }
    //______________________________________________________________________________
    int usbtmc_ask(int portNo,const char *query,char *response){
-      int SIZE = 512;
-      int r = usbtmc_write(portNo,query);
-      int b = read(portNo,&response,SIZE);
-      std::cout << response << std::endl;
-      if(r!=0||b!=0) strcpy(response,"NO RESPONSE");    // comms failed   
-      return b;
+      int rc=0;
+      const int SIZE = 512;
+      int nBytes_wr = usbtmc_write(portNo,query);
+      int nBytes_rd = read(portNo,response,SIZE);
+      if(nBytes_wr==0||nBytes_rd==0){
+         std::cout << "[CommDriver::usbtmc_ask]: Write response = " << nBytes_wr << std::endl; 
+         std::cout << "[CommDriver::usbtmc_ask]: Read response  = " << nBytes_rd << std::endl; 
+         strcpy(response,"NO RESPONSE");    // comms failed  
+         rc = 1;  
+      }
+      return rc;
    }
 
 }
