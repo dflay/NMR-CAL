@@ -33,7 +33,7 @@ class Device{
       Device();
       ~Device();
   
-   private: 
+   protected: 
       int fProtocol;         // type of protocol (RS232, USBTMC, TCPIP) 
       int fHandle;           // port number returned when connecting 
       std::string fName;     // device name 
