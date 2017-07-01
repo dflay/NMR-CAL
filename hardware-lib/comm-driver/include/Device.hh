@@ -31,7 +31,7 @@ class Device{
       std::string GetPath()    const { return fPath;     }  
  
       Device();
-      ~Device();
+      virtual ~Device();
   
    protected: 
       int fProtocol;         // type of protocol (RS232, USBTMC, TCPIP) 
