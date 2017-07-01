@@ -20,9 +20,9 @@ class Device{
       virtual int CheckErrors(char* err_msg);
       virtual int ClearErrors();
  
-      void SetProtocol(int p)        { fProtocol = p; } 
-      void SetName(const char* name) { fName = name; } 
-      void SetPath(const char* path) { fPath = path; } 
+      void SetProtocol(int p)        { fProtocol = p;    } 
+      void SetName(const char* name) { fName     = name; } 
+      void SetPath(const char* path) { fPath     = path; } 
 
       int GetProtocol()        const { return fProtocol; } 
       int GetHandle()          const { return fHandle;   }
