@@ -1,20 +1,20 @@
 #include "CommDriver.hh"
 //______________________________________________________________________________
-namespace comm_driver {
+namespace CommDriver {
    //______________________________________________________________________________
    int open_connection(int type,const char *device_name,const char *device_path){
       int handle = -1;
       switch (type) {
-         case comm_driver::kRS232:
+         case CommDriver::kRS232:
             handle = rs232_open_connection(device_path);
             break;
-         case comm_driver::kUSBTMC:
+         case CommDriver::kUSBTMC:
             handle = usbtmc_open_connection(device_name,device_path); 
             break;
-         case comm_driver::kTCPIP:
+         case CommDriver::kTCPIP:
             break;
          default:
-            std::cout << "[comm_driver::open_connection]: Invalid protocol!" << std::endl;
+            std::cout << "[CommDriver::open_connection]: Invalid protocol!" << std::endl;
       }
       return handle;
    }
@@ -22,16 +22,16 @@ namespace comm_driver {
    int close_connection(int type,int handle){
       int rc=-1;
       switch (type) {
-	 case comm_driver::kRS232:
+	 case CommDriver::kRS232:
 	    rc = rs232_close_connection(handle);
 	    break;
-	 case comm_driver::kUSBTMC:
+	 case CommDriver::kUSBTMC:
 	    rc = usbtmc_close_connection(handle); 
             break;
-         case comm_driver::kTCPIP:
+         case CommDriver::kTCPIP:
             break;
          default:
-            std::cout << "[comm_driver::close_connection]: Invalid protocol!" << std::endl;
+            std::cout << "[CommDriver::close_connection]: Invalid protocol!" << std::endl;
       }
       return rc;
    } 
@@ -39,13 +39,13 @@ namespace comm_driver {
    int write_cmd(int type,int handle,const char *buffer){
       int rc=0;
       switch (type) {
-	 case comm_driver::kRS232:
+	 case CommDriver::kRS232:
 	    rc = rs232_write(handle,buffer);
 	    break;
-	 case comm_driver::kUSBTMC:
+	 case CommDriver::kUSBTMC:
             rc = usbtmc_write(handle,buffer); 
 	    break;
-	 case comm_driver::kTCPIP:
+	 case CommDriver::kTCPIP:
 	    break;
 	 default:
 	    std::cout << "[sg382_interface::write_cmd]: Invalid protocol!" << std::endl;
@@ -56,13 +56,13 @@ namespace comm_driver {
    int query(int type,int handle,const char *cmd,char *response){
       int rc=0;
        switch (type) {
-         case comm_driver::kRS232:
+         case CommDriver::kRS232:
             rc = rs232_ask(handle,cmd,response);
             break;
-         case comm_driver::kUSBTMC: 
+         case CommDriver::kUSBTMC: 
             rc = usbtmc_ask(handle,cmd,response); 
             break;
-         case comm_driver::kTCPIP:
+         case CommDriver::kTCPIP:
             break;
          default:
             std::cout << "[sg382_interface::ask]: Invalid protocol!" << std::endl;

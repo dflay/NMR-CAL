@@ -10,15 +10,18 @@ PREFIX=/usr/local
 LIBINSTALLDIR=$(PREFIX)/lib
 INCINSTALLDIR=$(PREFIX)/include/g2field
 
-DEPS=$(INC_DIR)/CommDriver.hh 
+DEPS=$(INC_DIR)/CommDriver.hh $(INC_DIR)/Device.hh 
 CFLAGS = -I$(INC_DIR) -Wall 
 # CFLAGS = -I$(INC_DIR) -Wl,-rpath,$(LIB_DIR)
 LIBFLAGS = -L$(LIB_DIR) -lCommDriver
 
 # all: $(LIB_DIR)/libCommDriver.so
-all: $(BUILD_DIR)/CommDriver.o
+all: $(BUILD_DIR)/CommDriver.o $(BUILD_DIR)/Device.o 
 
 $(BUILD_DIR)/CommDriver.o: $(SRC_DIR)/CommDriver.cxx $(DEPS)
+	$(CXX) -o $@ -fPIC -c $< $(CFLAGS)
+
+$(BUILD_DIR)/Device.o: $(SRC_DIR)/Device.cxx $(DEPS)
 	$(CXX) -o $@ -fPIC -c $< $(CFLAGS)
 
 # $(LIB_DIR)/libCommDriver.so: $(BUILD_DIR)/CommDriver.o 

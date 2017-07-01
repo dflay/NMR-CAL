@@ -17,7 +17,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-namespace comm_driver {
+namespace CommDriver {
 
    enum protocolType{
       kRS232  = 0,

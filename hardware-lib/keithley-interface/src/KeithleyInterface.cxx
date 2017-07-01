@@ -3,12 +3,12 @@
 namespace keithley_interface {
    //______________________________________________________________________________
    int open_connection(int type,const char *dev_name,const char *dev_path){
-      int handle = comm_driver::open_connection(type,dev_name,dev_path); 
+      int handle = CommDriver::open_connection(type,dev_name,dev_path); 
       return handle; 
    }
    //______________________________________________________________________________
    int close_connection(int type,int handle){
-      int rc = comm_driver::close_connection(type,handle);
+      int rc = CommDriver::close_connection(type,handle);
       return rc; 
    }
    //______________________________________________________________________________
@@ -16,7 +16,7 @@ namespace keithley_interface {
       const int SIZE = 512;
       char cmd[SIZE];
       sprintf(cmd,"*IDN?\n"); 
-      int rc = comm_driver::query(type,portNo,cmd,response);
+      int rc = CommDriver::query(type,portNo,cmd,response);
       return rc; 
    }
    //______________________________________________________________________________
@@ -24,7 +24,7 @@ namespace keithley_interface {
       const int SIZE = 512; 
       char cmd[SIZE]; 
       sprintf(cmd,"SENS:FUNC?\n"); 
-      int rc = comm_driver::query(type,portNo,cmd,response);
+      int rc = CommDriver::query(type,portNo,cmd,response);
       return rc;   
    }
    //______________________________________________________________________________
@@ -32,7 +32,7 @@ namespace keithley_interface {
       const int SIZE = 512; 
       char cmd[SIZE],response[512]; 
       sprintf(cmd,"SYST:ERR?\n");
-      int rc = comm_driver::query(type,portNo,cmd,response);
+      int rc = CommDriver::query(type,portNo,cmd,response);
       // parse the string; it's going to be an error code and a message
       std::istringstream ss(response);
       std::string token,entry[2];
@@ -50,7 +50,7 @@ namespace keithley_interface {
    int clear_errors(int type,int portNo){
       char cmd[20]; 
       sprintf(cmd,"*CLS");
-      int rc = comm_driver::write_cmd(type,portNo,cmd);
+      int rc = CommDriver::write_cmd(type,portNo,cmd);
       return rc;
    }
    //______________________________________________________________________________
@@ -58,7 +58,7 @@ namespace keithley_interface {
       const int SIZE = 512;
       char cmd[SIZE];
       sprintf(cmd,"SYST:REM\n"); 
-      int rc   = comm_driver::write_cmd(type,portNo,cmd);  
+      int rc   = CommDriver::write_cmd(type,portNo,cmd);  
       return rc;
    }
    //______________________________________________________________________________
@@ -66,7 +66,7 @@ namespace keithley_interface {
       const int SIZE = 512;
       char cmd[SIZE];
       sprintf(cmd,"CONF:RES %.3lf\n",maxRange); 
-      int rc   = comm_driver::write_cmd(type,portNo,cmd);  
+      int rc   = CommDriver::write_cmd(type,portNo,cmd);  
       return rc;
    }
    //______________________________________________________________________________
@@ -74,7 +74,7 @@ namespace keithley_interface {
       const int SIZE = 512;
       char query[SIZE],response[SIZE];
       sprintf(query,"MEAS:RES?\n"); 
-      int rc = comm_driver::query(type,portNo,query,response);  
+      int rc = CommDriver::query(type,portNo,query,response);  
       R      = atof(response); 
       return rc; 
    }
