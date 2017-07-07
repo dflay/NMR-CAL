@@ -48,7 +48,7 @@ namespace CommDriver {
 	 case CommDriver::kTCPIP:
 	    break;
 	 default:
-	    std::cout << "[sg382_interface::write_cmd]: Invalid protocol!" << std::endl;
+	    std::cout << "[CommDriver::write_cmd]: Invalid protocol!" << std::endl;
       }
       return rc;
    }
@@ -57,15 +57,15 @@ namespace CommDriver {
       int rc=0;
        switch (type) {
          case CommDriver::kRS232:
-            rc = rs232_ask(handle,cmd,response);
+            rc = rs232_query(handle,cmd,response);
             break;
          case CommDriver::kUSBTMC: 
-            rc = usbtmc_ask(handle,cmd,response); 
+            rc = usbtmc_query(handle,cmd,response); 
             break;
          case CommDriver::kTCPIP:
             break;
          default:
-            std::cout << "[sg382_interface::ask]: Invalid protocol!" << std::endl;
+            std::cout << "[CommDriver::query]: Invalid protocol!" << std::endl;
       }
       return rc;
    }
@@ -75,13 +75,13 @@ namespace CommDriver {
       rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY);
       // rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
       if (rs232_handle < 0) {
-         printf("[driver::rs232_open_connection]: ERROR: Failed to open usb->serial port. \n");
+         printf("[CommDriver::rs232_open_connection]: ERROR: Failed to open usb->serial port. \n");
          return -1;
       }
 
       struct termios rs232_old_termios; 
       if ( tcgetattr(rs232_handle, &rs232_old_termios) != 0 ) {
-         printf("[driver::rs232_open_connection]: ERROR: Failed to read original serial settings.\n");
+         printf("[CommDriver::rs232_open_connection]: ERROR: Failed to read original serial settings.\n");
          close(rs232_handle);
          return -1; 
       }
@@ -103,7 +103,7 @@ namespace CommDriver {
       int rc = tcsetattr(rs232_handle, TCSANOW, &new_termios);
       char err_msg[512]; 
       if(rc<0){
-         sprintf(err_msg,"[device::rs232_open_connection]: Something's wrong. Error code: %d \n",rc);
+         sprintf(err_msg,"[CommDriver::rs232_open_connection]: Something's wrong. Error code: %d \n",rc);
          std::cout << err_msg << std::endl; 
          return -1;
       }
@@ -123,16 +123,14 @@ namespace CommDriver {
       int rc = write( handle,cmd,strlen(cmd) );
       return rc;
    }
-
    //______________________________________________________________________________
-   int rs232_ask(int handle,const char *query,char *response){
+   int rs232_query(int handle,const char *cmd,char *response){
       const int SIZE = 512;
-      int qSIZE = (int)( strlen(query) );
-      int rc = write(handle,query,qSIZE);
+      int rc = write(handle,cmd, strlen(cmd) );
       if (rc==0) {
 	 rc = read(handle,response,SIZE);
       } else {
-         std::cout << "[device::rs232_ask]: Cannot write to device!" << std::endl;
+         std::cout << "[CommDriver::rs232_query]: Cannot write to device!" << std::endl;
       }
       return rc;
    }
@@ -181,14 +179,14 @@ namespace CommDriver {
       return rc;
    }
    //______________________________________________________________________________
-   int usbtmc_ask(int portNo,const char *query,char *response){
+   int usbtmc_query(int portNo,const char *cmd,char *response){
       int rc=0;
       const int SIZE = 512;
-      int nBytes_wr = usbtmc_write(portNo,query);
+      int nBytes_wr = usbtmc_write(portNo,cmd);
       int nBytes_rd = read(portNo,response,SIZE);
       if(nBytes_wr==0||nBytes_rd==0){
-         std::cout << "[CommDriver::usbtmc_ask]: Write response = " << nBytes_wr << std::endl; 
-         std::cout << "[CommDriver::usbtmc_ask]: Read response  = " << nBytes_rd << std::endl; 
+         std::cout << "[CommDriver::usbtmc_query]: Write response = " << nBytes_wr << std::endl; 
+         std::cout << "[CommDriver::usbtmc_query]: Read response  = " << nBytes_rd << std::endl; 
          strcpy(response,"NO RESPONSE");    // comms failed  
          rc = 1;  
       }
