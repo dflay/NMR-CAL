@@ -48,7 +48,7 @@ int main(){
    myKeithley->SetName( dev_name.c_str() ); 
    myKeithley->SetPath( dev_path.c_str() );
 
-   int rc = myKeithley->OpenConnection(); 
+   int rc = myKeithley->OpenConnection();
    if (rc!=0) {
       std::cout << "Cannot open connection!" << std::endl;
       return 1; 
@@ -58,7 +58,7 @@ int main(){
 
    char msg[512];
    rc = myKeithley->GetDeviceID(msg); 
-   std::cout << msg << std::endl;  
+   std::cout << "Device ID: " << msg << std::endl;  
 
    double maxRange = 100E+3; 
    rc = myKeithley->SetRange(maxRange);

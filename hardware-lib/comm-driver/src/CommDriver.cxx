@@ -48,7 +48,7 @@ namespace CommDriver {
 	 case CommDriver::kTCPIP:
 	    break;
 	 default:
-	    std::cout << "[sg382_interface::write_cmd]: Invalid protocol!" << std::endl;
+	    std::cout << "[CommDriver::write_cmd]: Invalid protocol!" << std::endl;
       }
       return rc;
    }
@@ -65,7 +65,7 @@ namespace CommDriver {
          case CommDriver::kTCPIP:
             break;
          default:
-            std::cout << "[sg382_interface::ask]: Invalid protocol!" << std::endl;
+            std::cout << "[CommDriver::ask]: Invalid protocol!" << std::endl;
       }
       return rc;
    }
@@ -75,13 +75,13 @@ namespace CommDriver {
       rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY);
       // rs232_handle = open(device_path, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
       if (rs232_handle < 0) {
-         printf("[driver::rs232_open_connection]: ERROR: Failed to open usb->serial port. \n");
+         printf("[CommDriver::rs232_open_connection]: ERROR: Failed to open usb->serial port. \n");
          return -1;
       }
 
       struct termios rs232_old_termios; 
       if ( tcgetattr(rs232_handle, &rs232_old_termios) != 0 ) {
-         printf("[driver::rs232_open_connection]: ERROR: Failed to read original serial settings.\n");
+         printf("[CommDriver::rs232_open_connection]: ERROR: Failed to read original serial settings.\n");
          close(rs232_handle);
          return -1; 
       }
@@ -103,7 +103,7 @@ namespace CommDriver {
       int rc = tcsetattr(rs232_handle, TCSANOW, &new_termios);
       char err_msg[512]; 
       if(rc<0){
-         sprintf(err_msg,"[device::rs232_open_connection]: Something's wrong. Error code: %d \n",rc);
+         sprintf(err_msg,"[CommDriver::rs232_open_connection]: Something's wrong. Error code: %d \n",rc);
          std::cout << err_msg << std::endl; 
          return -1;
       }
@@ -132,7 +132,7 @@ namespace CommDriver {
       if (rc==0) {
 	 rc = read(handle,response,SIZE);
       } else {
-         std::cout << "[device::rs232_ask]: Cannot write to device!" << std::endl;
+         std::cout << "[CommDriver::rs232_ask]: Cannot write to device!" << std::endl;
       }
       return rc;
    }
@@ -153,7 +153,7 @@ namespace CommDriver {
          in.close();
       }else{
          std::cout << "No USBTMC devices found" << std::endl;
-         return 1;
+         return -1;
       }
 
       for(int i=0;i<16;i++){
