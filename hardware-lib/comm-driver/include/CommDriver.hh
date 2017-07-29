@@ -35,13 +35,13 @@ namespace CommDriver {
    int rs232_open_connection(const char *device_path);
    int rs232_close_connection(int rs232_handle); 
    int rs232_write(int handle,const char *cmd);
-   int rs232_ask(int handle,const char *query,char *response); 
+   int rs232_query(int handle,const char *cmd,char *response); 
 
    // USBTMC functions 
    int usbtmc_open_connection(const char *dev_name,const char *device_path); 
    int usbtmc_close_connection(int handle); 
    int usbtmc_write(int handle,const char *cmd);
-   int usbtmc_ask(int handle,const char *query,char *response); 
+   int usbtmc_query(int handle,const char *cmd,char *response); 
 
 }
 

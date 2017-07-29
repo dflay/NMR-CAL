@@ -26,9 +26,9 @@ int Keithley::SetRange(double maxRange){
 //______________________________________________________________________________
 int Keithley::GetResistance(double &R){
    const int SIZE = 512;
-   char query[SIZE],response[SIZE];
-   sprintf(query,"MEAS:RES?\n");
-   int rc = CommDriver::query(fProtocol,fHandle,query,response);
+   char cmd[SIZE],response[SIZE];
+   sprintf(cmd,"MEAS:RES?\n");
+   int rc = CommDriver::query(fProtocol,fHandle,cmd,response);
    R      = atof(response);
    return rc;
 }

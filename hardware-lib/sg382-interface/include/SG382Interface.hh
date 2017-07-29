@@ -19,7 +19,7 @@
 #define SG382_ENABLE_FREQ_ONLY     0x2  
 #define SG382_ENABLE_AMPL_AND_FREQ 0x3
 
-namespace sg382_interface { 
+namespace SG382Interface { 
 
    enum outputState{ 
       kDISABLE = 0,
