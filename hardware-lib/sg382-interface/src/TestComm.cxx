@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 
-#include "SG382Interface.hh"
+// #include "SG382Interface.hh"
 #include "SG382.hh"
 
 int main(){

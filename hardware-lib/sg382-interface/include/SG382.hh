@@ -6,7 +6,29 @@
 
 #include "CommDriver.hh"
 #include "Device.hh"
-#include "SG382Interface.hh"
+
+namespace sg382_interface {
+
+   enum outputState{
+      kDISABLE = 0,
+      kENABLE  = 1
+   };
+
+   enum modFunc{
+      kSINE     = 0,
+      kRAMP     = 1,
+      kTRIANGLE = 2,
+      kSQUARE   = 3,
+      kNOISE    = 4,
+      kEXTERNAL = 5
+   };
+
+   const static uint SG382_DISABLE              = 0x0;
+   const static uint SG382_ENABLE_AMPL_ONLY     = 0x1;
+   const static uint SG382_ENABLE_FREQ_ONLY     = 0x2;
+   const static uint SG382_ENABLE_AMPL_AND_FREQ = 0x3;
+
+}
 
 class SG382: public Device{
 

@@ -32,7 +32,7 @@ int SG382::SetBNCAmp(double amp){
 int SG382::SetBNCOutputState(int flag){
    int rc=-1;
    char cmd[100];
-   if(flag==SG382Interface::kDISABLE || flag==SG382Interface::kENABLE){
+   if(flag==sg382_interface::kDISABLE || flag==sg382_interface::kENABLE){
       sprintf(cmd,"ENBL%d\n",flag);
       rc = CommDriver::write_cmd(fProtocol,fHandle,cmd);
    }else{
@@ -44,7 +44,7 @@ int SG382::SetBNCOutputState(int flag){
 int SG382::SetNTypeOutputState(int flag){
    int rc=-1;
    char cmd[100];
-   if(flag==SG382Interface::kDISABLE || flag==SG382Interface::kENABLE){
+   if(flag==sg382_interface::kDISABLE || flag==sg382_interface::kENABLE){
       sprintf(cmd,"ENBR%d\n",flag);
       rc = CommDriver::write_cmd(fProtocol,fHandle,cmd);
    }else{
@@ -56,7 +56,7 @@ int SG382::SetNTypeOutputState(int flag){
 int SG382::SetModulationState(int flag){
    int rc=-1;
    char cmd[100];
-   if(flag==SG382Interface::kDISABLE || flag==SG382Interface::kENABLE){
+   if(flag==sg382_interface::kDISABLE || flag==sg382_interface::kENABLE){
       sprintf(cmd,"MODL%d\n",flag);
       rc = CommDriver::write_cmd(fProtocol,fHandle,cmd);
    }else{
@@ -68,8 +68,8 @@ int SG382::SetModulationState(int flag){
 int SG382::SetModulationFunction(int flag){
    int rc=-1;
    char cmd[100];
-   if(flag==SG382Interface::kSINE   || flag==SG382Interface::kRAMP  || flag==SG382Interface::kTRIANGLE ||
-      flag==SG382Interface::kSQUARE || flag==SG382Interface::kNOISE || flag==SG382Interface::kEXTERNAL){
+   if(flag==sg382_interface::kSINE   || flag==sg382_interface::kRAMP  || flag==sg382_interface::kTRIANGLE ||
+      flag==sg382_interface::kSQUARE || flag==sg382_interface::kNOISE || flag==sg382_interface::kEXTERNAL){
       sprintf(cmd,"MFNC%d\n",flag);
       rc = CommDriver::write_cmd(fProtocol,fHandle,cmd);
    }else{
