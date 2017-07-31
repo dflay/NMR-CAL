@@ -23,10 +23,10 @@ namespace sg382_interface {
       kEXTERNAL = 5
    };
 
-   const static uint SG382_DISABLE              = 0x0;
-   const static uint SG382_ENABLE_AMPL_ONLY     = 0x1;
-   const static uint SG382_ENABLE_FREQ_ONLY     = 0x2;
-   const static uint SG382_ENABLE_AMPL_AND_FREQ = 0x3;
+   const static uint DISABLE              = 0x0;
+   const static uint ENABLE_AMPL_ONLY     = 0x1;
+   const static uint ENABLE_FREQ_ONLY     = 0x2;
+   const static uint ENABLE_AMPL_AND_FREQ = 0x3;
 
 }
 
