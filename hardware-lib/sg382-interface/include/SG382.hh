@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <string> 
 
-// #include "CommDriver.hh"
+#include "CommDriver.hh"
 #include "Device.hh"
 #include "SG382Interface.hh"
 
