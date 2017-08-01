@@ -36,9 +36,9 @@ class SG382: public Device{
       SG382();
       ~SG382();
 
-      int SetFrequency(double freq);
-      int SetNTypeAmp(double amp);
-      int SetBNCAmp(double amp);
+      int SetFrequency(const char *freq);
+      int SetNTypeAmp(const char *amp);
+      int SetBNCAmp(const char *amp);
       int SetBNCOutputState(int flag);
       int SetNTypeOutputState(int flag);
       int SetModulationState(int flag);
