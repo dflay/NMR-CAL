@@ -127,6 +127,7 @@ namespace CommDriver {
    int rs232_query(int handle,const char *cmd,char *response){
       const int SIZE = 512;
       int rc = write(handle,cmd, strlen(cmd) );
+      std::cout << rc << "\t" << cmd << std::endl;
       if (rc==0) {
 	 rc = read(handle,response,SIZE);
       } else {

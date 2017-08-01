@@ -10,13 +10,14 @@ SG382::~SG382(){
 //______________________________________________________________________________
 int SG382::SetFrequency(const char *freq){
    // string is of the form: "value units" 
+   std::cout << fHandle << std::endl; 
    char cmd[100];
    sprintf(cmd, "FREQ %s\n",freq);
    int rc = CommDriver::write_cmd(fProtocol,fHandle,cmd);
    return rc;
 }
 //______________________________________________________________________________
-int SG382::SetNTypeAmp(const char *amp){
+int SG382::SetNTypeAmplitude(const char *amp){
    // string is of the form: "value units" 
    char cmd[100];
    sprintf(cmd, "AMPR %s\n",amp);
@@ -24,7 +25,7 @@ int SG382::SetNTypeAmp(const char *amp){
    return rc;
 }
 //______________________________________________________________________________
-int SG382::SetBNCAmp(const char *amp){
+int SG382::SetBNCAmplitude(const char *amp){
    // string is of the form: "value units" 
    char cmd[100];
    sprintf(cmd, "AMPL %s\n",amp);
