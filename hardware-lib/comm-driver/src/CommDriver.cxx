@@ -12,6 +12,10 @@ namespace CommDriver {
             handle = usbtmc_open_connection(device_name,device_path); 
             break;
          case CommDriver::kTCPIP:
+            std::cout << "[CommDriver::open_connection]: Not implemented!" << std::endl;
+            break;
+         case CommDriver::kVME: 
+            handle = vme_open_connection(device_path);
             break;
          default:
             std::cout << "[CommDriver::open_connection]: Invalid protocol!" << std::endl;
@@ -29,6 +33,10 @@ namespace CommDriver {
 	    rc = usbtmc_close_connection(handle); 
             break;
          case CommDriver::kTCPIP:
+            std::cout << "[CommDriver::open_connection]: Not implemented!" << std::endl;
+            break;
+         case CommDriver::kVME: 
+            handle = vme_close_connection(handle);
             break;
          default:
             std::cout << "[CommDriver::close_connection]: Invalid protocol!" << std::endl;
@@ -193,5 +201,40 @@ namespace CommDriver {
       }
       return rc;
    }
-
+   //______________________________________________________________________________
+   int vme_open_connection(const char *vmeBaseAddr){
+      int p = -1;
+      if( (p=open(vmeBaseAddr,O_RDWR,0))<0 ){
+         perror("open");
+         std::cout << "[CommDriver::vme_open_connection]: Cannot open the VME connection" << std::endl;
+         return 1;
+      }else{
+         std::cout << "[CommDriver::vme_open_connection]: VME connection opened successfully" << std::endl;
+      }
+      return p;
+   }
+   //______________________________________________________________________________
+   int vme_close_connection(int handle){
+      return close(handle); 
+   }
+   //______________________________________________________________________________
+   int vme_write32(int handle,u_int32_t addr,u_int32_t data){
+      char msg[200]; 
+      int rc = vme_A32D32_write(handle,addr,data);
+      if(rc!=0){
+         sprintf(msg,"[CommDrier::vme_write32]: ERROR!  Write failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,data);
+         std::cout << msg << std::endl;
+      }
+      return rc;
+   }
+   //______________________________________________________________________________
+   int vme_read32(int handle,u_int32_t addr,u_int32_t *data){
+      char msg[200]; 
+      int rc = vme_A32D32_read(handle,addr,data);
+      if(rc!=0){
+         sprintf(msg,"[CommDrier::vme_write32]: ERROR!  Read failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,*data);
+         std::cout << msg << std::endl;
+      }
+      return rc;
+   }
 }
