@@ -24,8 +24,9 @@ namespace SISInterface {
    int initialize_3302(sisDigitizer_t myADC);   // for the 3302    
    int initialize_3316(sisDigitizer_t myADC);   // for the 3316
     
-   
-
+   int reinitialize(sisDigitizer_t myADC);        // generic call the user interacts with  
+   int reinitialize_3302(sisDigitizer_t myADC);   // for the 3302    
+   int reinitialize_3316(sisDigitizer_t myADC);   // for the 3316
 
 } //::SISInterface  
 
