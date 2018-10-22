@@ -50,8 +50,8 @@ namespace CommDriver {
    // VME functions 
    int vme_open_connection(const char *device_path);
    int vme_close_connection(int handle);  
-   int vme_write_32(int handle,u_int32_t addr,u_int32_t data);  
-   int vme_read_32(int handle,u_int32_t addr,u_int32_t *data);  
+   int vme_write32(int handle,u_int32_t addr,u_int32_t data);  
+   int vme_read32(int handle,u_int32_t addr,u_int32_t *data);  
 
 }
 

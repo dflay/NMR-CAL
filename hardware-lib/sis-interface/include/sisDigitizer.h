@@ -13,7 +13,7 @@ typedef struct sisDigitizer {
    int modID;                          // module ID 
    int channelNumber;                  // channel number to read out 
    int numberOfEvents;                 // number of events 
-   int NumberOfSamples;                // number of samples; NOTE: this is different from the number of events! 
+   int numberOfSamples;                // number of samples; NOTE: this is different from the number of events! 
    int clockType;                      // 0 = internal, 1 = external; default is internal  
    int multiEventState;                // 0 = disabled, 1 = enabled; default is disabled 
    double clockFrequency;              // clock frequency in Hz 

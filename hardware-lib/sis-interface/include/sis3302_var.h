@@ -24,6 +24,7 @@
 /*                                                                         */
 /***************************************************************************/
 
+#define SIS3302_MOD_BASE                            0x60000000// default address of the SIS3302 digitizer (FNAL)
 #define SIS3302_CONTROL_STATUS                      0x0	      /* read/write; D32 */
 #define SIS3302_MODID                               0x4	      /* read only; D32 */
 #define SIS3302_IRQ_CONFIG                          0x8       /* read/write; D32 */

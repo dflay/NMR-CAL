@@ -96,6 +96,7 @@
 // code against the SIS3302 header file.  These definitions are NOT in original source file. 
 // NOTE: Be aware that START_DELAY is the same as the CBLT_BROADCAST variable! 
 
+#define SIS3316_MOD_BASE                                                                0x41000000 // default address 
 #define SIS3316_START_DELAY                                                             0x14      /* read/write; D32 */
 #define SIS3316_STOP_DELAY                                                              0x18      /* read/write; D32 */
 #define SIS3316_EVENT_CONFIG_ALL_ADC                                                    0x01000000    
