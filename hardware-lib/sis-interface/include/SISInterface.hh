@@ -10,7 +10,7 @@
 #include <iostream>
 #include <math.h>
 
-#include "sisDigitizer.h"
+#include "sisParameters.h"
 #include "CommDriver.hh"
 
 #include "sis1100_var.h"
@@ -27,16 +27,16 @@ namespace SISInterface {
    int close_connection(int type,int handle);
    int get_module_id(int handle,u_int32_t addr,int &modID,int &majRev,int &minRev);
 
-   int initialize(sisDigitizer_t myADC);        // generic call the user interacts with  
-   int initialize_3302(sisDigitizer_t myADC);   // for the 3302    
-   int initialize_3316(sisDigitizer_t myADC);   // for the 3316
+   int initialize(sisParameters_t myADC);        // generic call the user interacts with  
+   int initialize_3302(sisParameters_t myADC);   // for the 3302    
+   int initialize_3316(sisParameters_t myADC);   // for the 3316
     
-   int reinitialize(sisDigitizer_t myADC);        // generic call the user interacts with  
-   int reinitialize_3302(sisDigitizer_t myADC);   // for the 3302    
-   int reinitialize_3316(sisDigitizer_t myADC);   // for the 3316
+   int reinitialize(sisParameters_t myADC);        // generic call the user interacts with  
+   int reinitialize_3302(sisParameters_t myADC);   // for the 3302    
+   int reinitialize_3316(sisParameters_t myADC);   // for the 3316
 
    // functions specific to SIS3316 
-   int configure_clock_3316(sisDigitizer_t myADC,int use_ext_clock,int adc_125MHz_flag);
+   int configure_clock_3316(sisParameters_t myADC,int use_ext_clock,int adc_125MHz_flag);
    int call_vme_A32MBLT64FIFO_read(int vme_handle, u_int32_t vme_adr, u_int32_t* vme_data,
          u_int32_t req_num_of_lwords, u_int32_t* got_num_of_lwords);
 
