@@ -27,8 +27,6 @@ class SIS3316: public SISBase {
 
    private: 
 
-      int SaveSample(unsigned short* memory_data_array,unsigned int nof_write_length_lwords); 
-
       int call_vme_A32MBLT64FIFO_read(int vme_handle, u_int32_t vme_adr, u_int32_t* vme_data,
             u_int32_t req_num_of_lwords, u_int32_t* got_num_of_lwords);
 
