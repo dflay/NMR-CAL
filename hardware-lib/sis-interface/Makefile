@@ -29,15 +29,13 @@ DRIVER_LIB_FLAGS = -L$(DRIVER_LIB_DIR) -lCommDriver
 all: $(BIN_DIR)/TestComm $(LIB_DIR)/libSISBase.so $(LIB_DIR)/libSIS3302.so 
 # all: $(BIN_DIR)/TestComm $(LIB_DIR)/libSISInterface.so
 
-$(LIB_DIR)/libSISBase.so: $(BUILD_DIR)/SISBase.o $(DRIVER_BUILD_DIR)/CommDriver.o $(DRIVER_BUILD_DIR)/Device.o \
-	$(DRIVER_BUILD_DIR)/vme_calls.o
+$(LIB_DIR)/libSISBase.so: $(BUILD_DIR)/SISBase.o $(DRIVER_LIB_DIR)/libCommDriver.so $(DRIVER_BUILD_DIR)/Device.o
 	$(CXX) -shared -fPIC -o $@ $^ 
 
 $(BUILD_DIR)/SISBase.o: $(SRC_DIR)/SISBase.cxx $(DEPS_BASE)
 	$(CXX) -o $@ -fPIC -c $< $(CPPFLAGS)
 
-$(LIB_DIR)/libSIS3302.so: $(BUILD_DIR)/SIS3302.o $(BUILD_DIR)/SISBase.o $(DRIVER_BUILD_DIR)/CommDriver.o \
-	$(DRIVER_BUILD_DIR)/Device.o $(DRIVER_BUILD_DIR)/vme_calls.o
+$(LIB_DIR)/libSIS3302.so: $(BUILD_DIR)/SIS3302.o $(BUILD_DIR)/SISBase.o $(DRIVER_LIB_DIR)/libCommDriver.so $(DRIVER_BUILD_DIR)/Device.o 
 	$(CXX) -shared -fPIC -o $@ $^ 
 
 $(BUILD_DIR)/SIS3302.o: $(SRC_DIR)/SIS3302.cxx $(DEPS_3302)
