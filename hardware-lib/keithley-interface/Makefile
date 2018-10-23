@@ -22,7 +22,7 @@ DRIVER_LIB_FLAGS = -L$(DRIVER_LIB_DIR) -lCommDriver
 
 all: $(BIN_DIR)/TestComm $(LIB_DIR)/libkeithleyinterface.so $(LIB_DIR)/libkeithleyclass.so
 
-$(LIB_DIR)/libkeithleyinterface.so: $(BUILD_DIR)/KeithleyInterface.o $(DRIVER_BUILD_DIR)/CommDriver.o 
+$(LIB_DIR)/libkeithleyinterface.so: $(BUILD_DIR)/KeithleyInterface.o $(DRIVER_LIB_DIR)/libCommDriver.so 
 	$(CXX) -shared -fPIC -o $@ $^ 
 
 $(BUILD_DIR)/KeithleyInterface.o: $(SRC_DIR)/KeithleyInterface.cxx $(DEPS)

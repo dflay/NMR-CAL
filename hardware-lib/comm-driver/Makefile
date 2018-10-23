@@ -17,7 +17,8 @@ CFLAGS = -I$(INC_DIR) -Wall
 LIBFLAGS = -L$(LIB_DIR) -lCommDriver
 
 # all: $(LIB_DIR)/libCommDriver.so
-all: $(BUILD_DIR)/CommDriver.o $(BUILD_DIR)/Device.o $(BUILD_DIR)/vme_calls.o 
+# all: $(BUILD_DIR)/CommDriver.so $(BUILD_DIR)/Device.o $(BUILD_DIR)/vme_calls.o 
+all: $(LIB_DIR)/libCommDriver.so $(BUILD_DIR)/Device.o 
 
 $(BUILD_DIR)/CommDriver.o: $(SRC_DIR)/CommDriver.cxx $(DEPS)
 	$(CXX) -o $@ -fPIC -c $< $(CFLAGS)
@@ -28,8 +29,8 @@ $(BUILD_DIR)/vme_calls.o: $(SRC_DIR)/sis3100_vme_calls.c $(DEPS_VME)
 $(BUILD_DIR)/Device.o: $(SRC_DIR)/Device.cxx $(DEPS)
 	$(CXX) -o $@ -fPIC -c $< $(CFLAGS)
 
-# $(LIB_DIR)/libCommDriver.so: $(BUILD_DIR)/CommDriver.o 
-# 	$(CXX) -shared -fPIC -o $@ $^ 
+$(LIB_DIR)/libCommDriver.so: $(BUILD_DIR)/CommDriver.o $(BUILD_DIR)/vme_calls.o 
+	$(CXX) -shared -fPIC -o $@ $^ 
 
 .PHONY: clean
 .PHONY: install

@@ -27,7 +27,7 @@ DRIVER_LIB_FLAGS = -L$(DRIVER_LIB_DIR) -lCommDriver
 # all: $(BIN_DIR)/TestComm $(LIB_DIR)/libSG382Interface.so $(LIB_DIR)/libSG382.so
 all: $(BIN_DIR)/TestComm $(LIB_DIR)/libSG382.so
 
-$(LIB_DIR)/libSG382.so: $(BUILD_DIR)/SG382.o $(DRIVER_BUILD_DIR)/CommDriver.o $(DRIVER_BUILD_DIR)/Device.o
+$(LIB_DIR)/libSG382.so: $(BUILD_DIR)/SG382.o $(DRIVER_LIB_DIR)/libCommDriver.so $(DRIVER_BUILD_DIR)/Device.o
 	$(CXX) -shared -fPIC -o $@ $^ 
 
 $(BUILD_DIR)/SG382.o: $(SRC_DIR)/SG382.cxx $(DEPS2)
