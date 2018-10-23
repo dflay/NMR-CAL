@@ -2,6 +2,7 @@
 //______________________________________________________________________________
 SIS3316::SIS3316(sisParameters_t par){
    SetParameters(par);
+   fEventNumber = 1;
 }
 //______________________________________________________________________________
 SIS3316::~SIS3316(){
@@ -21,6 +22,7 @@ int SIS3316::Initialize(){
    // for(i=0;i<6;i++) timeEnd[i]   = 0;
 
    // GetTimeStamp_usec(timeStart);
+   fEventNumber = 1;  // reset the event number 
 
    // input from user 
    u_int32_t base_addr = fParameters.moduleBaseAddress;
@@ -280,6 +282,7 @@ int SIS3316::Initialize(){
 //______________________________________________________________________________
 int SIS3316::ReInitialize(){
    // re-initialize the digitizer in the case that the event length has changed
+   fEventNumber++;  // increment the event number 
 
    // input from user 
    int vme_handle                   = fHandle;
@@ -1798,13 +1801,12 @@ int SIS3316::ReadOutData(){
 
    // Samples an NMR pulse when called.  After the address threshold is reached 
    // for a single event (i.e., pulse), the current memory bank is disarmed and the idle 
-   // one is armed.  From here, the data is written to file, where the pulse number (EventNum)
-   // serves as the file name, stored in the appropriate output directory (output_dir). 
-   // inputs:
+   // one is armed.   
+   // important parameters:
    // - vme_handle:      VME handle
    // - myADC:           ADC struct with all ADC settings 
    // - output_dir:      Output directory path 
-   // - EventNum:        The current event number 
+   // - EventNumber:     The current event number 
    // - armed_bank_flag: The currently armed bank (0 = bank2, 1 = bank1) 
    // outputs 
    // - armed_bank_flag: Is updated to reflect currently armed bank
@@ -1817,7 +1819,6 @@ int SIS3316::ReadOutData(){
 
    // if(isDebug) printf("[SIS3316::ReadOutData]: ARMED BANK FLAG: %d \n",*armed_bank_flag);
 
-   int EventNum             = 1; 
    int rc                   = 0;
    int bank1_armed_flag     = -1;
    int input_nof_samples    = fParameters.numberOfSamples;
@@ -1839,7 +1840,6 @@ int SIS3316::ReadOutData(){
    // apparently this works better for large arrays...
    u_int32_t *adc_buffer    = static_cast<u_int32_t *>( malloc( sizeof(u_int32_t)*SIZE     ) );
    // u_int16_t *adc_buffer_us = static_cast<u_int16_t *>( malloc( sizeof(u_int16_t)*(2*SIZE) ) );
-
    fData.resize(SIZE);  
 
    u_int32_t read_data=0,read_data_2=0,addr_thresh=0;
@@ -1849,7 +1849,7 @@ int SIS3316::ReadOutData(){
    bank1_armed_flag = 0; // *armed_bank_flag;  // keeping track of previous bank.  armed_bank_flag: 0 => bank2 armed; 1 => bank1 armed   
 
    if(isDebug) std::cout << "[SIS3316::ReadOutData]: Starting the readout loop..." << std::endl;
-   if(EventNum==1){
+   if(fEventNumber==1){
       if(isDebug){
          sprintf(msg,"[SIS3316::ReadOutData]: THIS IS THE FIRST EVENT.  STARTING ON BANK 1");
          std::cout << msg << std::endl;
@@ -1865,7 +1865,7 @@ int SIS3316::ReadOutData(){
    if(isDebug){
       sprintf(msg,"[SIS3316::ReadOutData]: bank1_armed_flag = %d",bank1_armed_flag);
       std::cout << msg << std::endl;
-      sprintf(msg,"[SIS3316::ReadOutData]: EVENT NUMBER: %d",EventNum);
+      sprintf(msg,"[SIS3316::ReadOutData]: EVENT NUMBER: %d",fEventNumber);
       std::cout << msg << std::endl;
       sprintf(msg,"[SIS3316::ReadOutData]: [START] bank1_armed_flag = %d ",bank1_armed_flag);
       std::cout << msg << std::endl;
@@ -1982,7 +1982,7 @@ int SIS3316::ReadOutData(){
             fData[i*2+1] = (u_int16_t)data_high;
          }
          if(isDebug){
-            sprintf(msg,"[SIS3316::ReadOutData]: Event %d: Recorded %d 32-bit data-words.",EventNum,got_nof_32bit_words);
+            sprintf(msg,"[SIS3316::ReadOutData]: Event %d: Recorded %d 32-bit data-words.",fEventNumber,got_nof_32bit_words);
             std::cout << msg << std::endl;
          }
       }else{
@@ -1995,7 +1995,6 @@ int SIS3316::ReadOutData(){
       std::cout << msg << std::endl;
       rc = -97;
    }
-   // printf("---------------------------------------------------- \n");
 
    if(isDebug){
       sprintf(msg,"[SIS3316::SIS3316SampleData]: Return code = %d  ",rc);
