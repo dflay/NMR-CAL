@@ -14,8 +14,6 @@
 #include "Device.hh"
 
 #include "sis1100_var.h"
-#include "sis3302_var.h"
-#include "sis3316_var.h"
 #include "sis3100_vme_calls.h"
 
 #define MAX_NUMBER_LWORDS_64MBYTE 0x1000000       // 64MB 

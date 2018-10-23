@@ -13,6 +13,8 @@
 #include "Device.hh"
 #include "CommDriver.hh"
 
+#include "sis3302_var.h"
+
 class SIS3302: public SISBase { 
 
    public:

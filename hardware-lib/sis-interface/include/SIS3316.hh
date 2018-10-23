@@ -3,13 +3,27 @@
 
 // implementation of SIS3316 class
 
-class SIS3316: public SISBase, public Device { 
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <string>
 
-   private: 
+#include "sisParameters.h"
+#include "SISBase.hh"
+#include "Device.hh"
+#include "CommDriver.hh"
+
+#include "sis3316_var.h"
+
+class SIS3316: public SISBase { 
 
    public:
-      SIS3316();
+      SIS3316( sisParameters_t par=sisParameters() );
       ~SIS3316():
+
+      int Initialize();
+      int ReInitialize();
+      int ReadOutData(); 
 
 }; 
 
