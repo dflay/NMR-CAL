@@ -46,6 +46,8 @@ int main(){
       my3316->ReInitialize();     // prepare for next event 
    } 
 
+   my3316->CloseConnection(); 
+
    delete my3316;
 
    return rc;
