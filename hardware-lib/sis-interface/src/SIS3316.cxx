@@ -1,13 +1,15 @@
 #include "SIS3316.hh"
 //______________________________________________________________________________
 SIS3316::SIS3316(sisParameters_t par){
+   fName = "SIS3316"; 
    SetParameters(par);
    fEventNumber    = 1;  // assume we start from event 1 
+   fArmedBankFlag = new int; 
    *fArmedBankFlag = 0;  // assume bank 2 is armed 
 }
 //______________________________________________________________________________
 SIS3316::~SIS3316(){
-
+   delete fArmedBankFlag; 
 }
 //______________________________________________________________________________
 int SIS3316::Initialize(){
@@ -63,33 +65,33 @@ int SIS3316::Initialize(){
    if(isDebug) std::cout << "[SIS3316::Initialize]: Reading the MOD ID..." << std::endl;
    int rc = ReadModuleID();
    if( isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done."   << std::endl;
-   if( isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed!" << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed!" << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Issuing key reset..." << std::endl;
    addr = base_addr + SIS3316_KEY_RESET;
    rc = CommDriver::vme_write32(vme_handle,addr, 0x0);
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Issuing key disarm..." << std::endl;
    addr = base_addr + SIS3316_KEY_DISARM; 
    rc = CommDriver::vme_write32(vme_handle,addr, 0x0);
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Configuring the ADC via SPI... " << std::endl;
    rc = adc_spi_setup(vme_handle,adc_125MHz_flag);
    if( isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if( isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Configuring the clock..." << std::endl;
    rc = configure_clock(use_ext_clock,adc_125MHz_flag);
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done." << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Turning on the ADC chip outputs... " << std::endl;
    u_int32_t an_offset=0;
@@ -101,7 +103,7 @@ int SIS3316::Initialize(){
       if(rc!=0) fail++;
    }
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done." << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting the LEMO output 'CO'..." << std::endl;
@@ -109,14 +111,14 @@ int SIS3316::Initialize(){
    addr = base_addr + SIS3316_LEMO_OUT_CO_SELECT_REG;
    rc = CommDriver::vme_write32(vme_handle,addr, data32 ); //
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Enabling the LEMO output 'TO'..." << std::endl;
    data32 = 0xffff ; // Select all triggers
    addr = base_addr + SIS3316_LEMO_OUT_TO_SELECT_REG;
    rc = CommDriver::vme_write32(vme_handle,addr, data32 ); //
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
 
    // header writes 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting up the headers..." << std::endl;
@@ -138,7 +140,7 @@ int SIS3316::Initialize(){
    rc = CommDriver::vme_write32(vme_handle,addr, data32 ); //
    if(rc!=0) fail++;
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
 
    // gain/termination 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting the gain and termination options..." << std::endl;
@@ -156,7 +158,7 @@ int SIS3316::Initialize(){
    rc = CommDriver::vme_write32(vme_handle,addr,analog_ctrl_val);
    if(rc!=0) fail++;
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done." << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Intializing the ADC (DAC) offsets... " << std::endl;
    u_int32_t adc_dac_offset=0;
@@ -187,7 +189,7 @@ int SIS3316::Initialize(){
    if(rc!=0) fail++;
    usleep(50);
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done." << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Now implementing configuration... " << std::endl;
    fail = 0;
@@ -207,7 +209,7 @@ int SIS3316::Initialize(){
       usleep(50); //unsigned int uint_usec
    }
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. "  << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl; 
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl; 
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting the trigger gate window length register..." << std::endl;
    fail = 0;
@@ -225,7 +227,7 @@ int SIS3316::Initialize(){
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
    if(rc!=0) fail++;
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting the pre-trigger delay value... " << std::endl;
    fail = 0;
@@ -243,7 +245,7 @@ int SIS3316::Initialize(){
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
    if(rc!=0) fail++;
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times!" << std::endl;
 
    // Disable/Enable LEMO Input "TI" as External Trigger
    if(isDebug) std::cout << "[SIS3316::Initialize]: Setting the trigger type... " << std::endl;
@@ -256,7 +258,7 @@ int SIS3316::Initialize(){
    addr = base_addr + SIS3316_NIM_INPUT_CONTROL_REG;
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
    if(isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::Initialize]: Failed! " << std::endl;
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Enabling external triggers... " << std::endl;
    // data32 = 0x100; // external trigger function as trigger enable   
@@ -266,17 +268,21 @@ int SIS3316::Initialize(){
    addr = base_addr + SIS3316_ACQUISITION_CONTROL_STATUS;
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
    usleep(1);
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Clearing the timestamp... " << std::endl;
    addr = base_addr + SIS3316_KEY_TIMESTAMP_CLEAR;
    rc = CommDriver::vme_write32(vme_handle,addr,0x0);
    if(isDebug && fail==0) std::cout << "[SIS3316::Initialize]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::Initialize]: Failed " << fail << " times! " << std::endl;
    usleep(5);        // it's probably best to wait a bit before starting... 
 
-   if(rc!=0) std::cout << "[SIS3316::Initialize]: Initialization failed! " << std::endl;
+   if(rc==0){
+      std::cout << "[SIS3316::Initialize]: Initialization of module " << fParameters.moduleID << " complete!" << std::endl;
+   }else{
+      std::cout << "[SIS3316::Initialize]: Initialization failed! " << std::endl;
+   }
 
    return rc;
 }
@@ -314,6 +320,8 @@ int SIS3316::ReInitialize(){
    double input_nof_samples_mb      = ( (double)input_nof_samples )*sample_size_bytes/1E+6;
 
    char msg[512]; 
+   
+   std::cout << "[SIS3316::ReInitialize]: Initializing..." << std::endl;
 
    if(input_nof_samples>raw_buf_max){
       use_ext_raw_buf      = 1;
@@ -337,16 +345,14 @@ int SIS3316::ReInitialize(){
    unsigned long int addr_thresh        = (unsigned long int)( NEventsOnADC*event_length/2 );   
    unsigned long int max_read_nof_words = NEventsOnADC*event_length;
 
-   std::cout << "[SIS3316::ReInitialize]: Initializing..." << std::endl;
-
    if(isDebug){
-      sprintf(msg,"Event length:                        %lu (%.3lf MB) \n",(unsigned long)event_length,input_nof_samples_mb);
+      sprintf(msg,"Event length:                        %lu (%.3lf MB)",(unsigned long)event_length,input_nof_samples_mb);
       std::cout << msg << std::endl;
-      sprintf(msg,"Number of events:                    %d    \n",NEvents);
+      sprintf(msg,"Number of events:                    %d    ",NEvents);
       std::cout << msg << std::endl;
-      sprintf(msg,"Address threshold:                   %lu 32-bit words \n",addr_thresh );
+      sprintf(msg,"Address threshold:                   %lu 32-bit words ",addr_thresh );
       std::cout << msg << std::endl;
-      sprintf(msg,"Total number of expected data words: %lu   \n",max_read_nof_words);
+      sprintf(msg,"Total number of expected data words: %lu   ",max_read_nof_words);
       std::cout << msg << std::endl;
    }
 
@@ -361,7 +367,7 @@ int SIS3316::ReInitialize(){
    addr = base_addr + SIS3316_KEY_DISARM;
    rc = CommDriver::vme_write32(vme_handle,addr, 0x0);
    if(isDebug && rc==0) std::cout << "[SIS3316::ReInitialize]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::ReInitialize]: Failed!" << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::ReInitialize]: Failed!" << std::endl;
    usleep(1);
 
    if(use_ext_raw_buf==0){
@@ -435,7 +441,7 @@ int SIS3316::ReInitialize(){
       // std::cout << "high bytes: %lu \n",data_high);  
       // std::cout << "sum:        %lu \n",sum);  
       if(isDebug && fail==0) std::cout << "[SIS3316::ReInitialize]: Done. " << std::endl;
-      if(isDebug || fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
+      if(fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
    }else if(use_ext_raw_buf==1){
       if(isDebug) std::cout << "[SIS3316::ReInitialize]: Writing data to EXTENDED raw data buffer config register..." << std::endl; 
       fail = 0;
@@ -452,7 +458,7 @@ int SIS3316::ReInitialize(){
       rc = CommDriver::vme_write32(vme_handle,addr,ext_raw_data_buf_reg);
       if(rc!=0) fail++;
       if(isDebug && fail==0) std::cout << "[SIS3316::ReInitialize]: Done. " << std::endl;
-      if(isDebug || fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
+      if(fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
       if(isDebug) std::cout << "[SIS3316::ReInitialize]: Reading data from EXTENDED raw data buffer config register... " << std::endl;
       fail = 0;
       addr = base_addr + SIS3316_ADC_CH1_4_EXTENDED_RAW_DATA_BUFFER_CONFIG_REG;
@@ -507,10 +513,11 @@ int SIS3316::ReInitialize(){
       // std::cout << "high bytes: %lu \n",data_high);  
       // std::cout << "sum:        %lu \n",sum);  
       if(isDebug && fail==0) std::cout << "[SIS3316::ReInitialize]: Done. " << std::endl;
-      if(isDebug || fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
-
-      if(rc!=0) std::cout << "[SIS3316::ReInitialize]: Failed! " << std::endl;
+      if(fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times! " << std::endl;
+      if(rc!=0)   std::cout << "[SIS3316::ReInitialize]: Failed! " << std::endl;
    }
+
+   if(rc==0) std::cout << "[SIS3316::ReInitialize]: Done!" << std::endl;
    return rc;
 }
 //______________________________________________________________________________
@@ -584,24 +591,24 @@ int SIS3316::configure_clock(int use_ext_clock,int adc_125MHz_flag){
       addr = base_addr + SIS3316_SAMPLE_CLOCK_DISTRIBUTION_CONTROL; 
       rc = CommDriver::vme_write32(vme_handle,addr, 0x3);
       if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-      if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed!" << std::endl;
+      if(rc!=0) std::cout << "[SIS3316::configure_clock]: Failed!" << std::endl;
       rc = CommDriver::vme_read32(vme_handle,addr,&read_data);
       if(isDebug){
          sprintf(msg,"[SIS3316::configure_clock]: Read sample clock distribution: 0x%08x\n", read_data);
          std::cout << msg << std::endl;
       }
       if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-      if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed!" << std::endl;
+      if(rc!=0) std::cout << "[SIS3316::configure_clock]: Failed!" << std::endl;
 
       if(isDebug) std::cout << "[SIS3316::configure_clock]: Bypassing precision clock multiplier..." << std::endl;
       rc = vme_write_si5325(vme_handle, 0, 0x2);
       if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-      if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
+      if(rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
 
       if(isDebug) std::cout << "[SIS3316::configure_clock]: Powering down the old clock..." << std::endl;
       rc = vme_write_si5325(vme_handle, 11, 0x02);
       if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-      if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
+      if(rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
    }
    usleep(1000);
 
@@ -609,7 +616,7 @@ int SIS3316::configure_clock(int use_ext_clock,int adc_125MHz_flag){
    addr = base_addr + SIS3316_KEY_ADC_CLOCK_DCM_RESET; 
    rc = CommDriver::vme_write32(vme_handle,addr,0x0);
    if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-   if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
+   if(rc!=0) std::cout << "[SIS3316::configure_clock]: Failed! " << std::endl;
    usleep(10000);   // wait 10 ms for clock to be stable; should be fine after 5 ms, but we wait longer  
 
    fail = 0;
@@ -642,7 +649,7 @@ int SIS3316::configure_clock(int use_ext_clock,int adc_125MHz_flag){
    usleep(1000) ;
 
    if(isDebug && fail==0) std::cout << "[SIS3316::configure_clock]: Done. " << std::endl;
-   if(isDebug || fail!=0) std::cout << "[SIS3316::configure_clock]: Failed " << fail << " times! " << std::endl;
+   if(fail!=0) std::cout << "[SIS3316::configure_clock]: Failed " << fail << " times! " << std::endl;
 
    return rc;
 }
@@ -658,12 +665,13 @@ int SIS3316::adc_spi_setup(int vme_handle,int adc_125MHz_flag){
 
    int rc;
    unsigned int adc_chip_id;
-   unsigned int addr, data;
+   unsigned int data;
 
-   u_int32_t base_addr = fParameters.moduleBaseAddress; 
+   u_int32_t addr; 
+   u_int32_t base_addr = fParameters.moduleBaseAddress;
 
    char msg[512]; 
-
+ 
    // disable ADC output
    for(unsigned i_adc_fpga_group = 0; i_adc_fpga_group < 4; i_adc_fpga_group++) {
       addr = base_addr + SIS3316_ADC_CH1_4_SPI_CTRL_REG +  ((i_adc_fpga_group & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET) ;
@@ -852,12 +860,12 @@ int SIS3316::adc_spi_read(int vme_handle,unsigned int adc_fpga_group,unsigned in
    }
 
    // read register to get the information of bit 24 (adc output enabled)
-   addr = SIS3316_ADC_CH1_4_SPI_CTRL_REG +  ((adc_fpga_group & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET) ;
+   addr = base_addr + SIS3316_ADC_CH1_4_SPI_CTRL_REG +  ((adc_fpga_group & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET) ;
    rc = CommDriver::vme_read32(vme_handle,addr,&data); //  
 
    if(isDebug){
       if (rc!=0){
-         sprintf(msg,"adc_spi_read vme_A32D32_read 1: rc = 0x%08x", rc);
+         sprintf(msg,"[SIS3316::adc_spi_read] vme_A32D32_read 1: rc = 0x%08x", rc);
          std::cout << msg << std::endl;
          return rc;
       }
@@ -871,7 +879,7 @@ int SIS3316::adc_spi_read(int vme_handle,unsigned int adc_fpga_group,unsigned in
 
    if(isDebug){
       if (rc!=0) {
-         sprintf(msg,"adc_spi_read vme_A32D32_write 1: rc = 0x%08x", rc);
+         sprintf(msg,"[SIS3316::adc_spi_read] vme_A32D32_write 1: rc = 0x%08x", rc);
          std::cout << msg << std::endl;
       }
    }
@@ -891,7 +899,7 @@ int SIS3316::adc_spi_read(int vme_handle,unsigned int adc_fpga_group,unsigned in
    }while( ((data&0x0000000f)!=0x00000000)&&(pollcounter>0)&&(rc==0) ); // changed 2.12.2014,  VME FPGA Version 0x0005 and lower
 
    if(isDebug){
-      sprintf(msg,"adc_spi_read pollcounter: pollcounter = 0x%08x", pollcounter);
+      sprintf(msg,"[SIS3316::adc_spi_read] pollcounter: pollcounter = 0x%08x", pollcounter);
       std::cout << msg << std::endl;
    }
 
@@ -905,13 +913,13 @@ int SIS3316::adc_spi_read(int vme_handle,unsigned int adc_fpga_group,unsigned in
 
    usleep(20); //
 
-   //addr = SIS3316_ADC_CH1_4_SPI_READBACK_REG  ; // removed 21.01.2015
+   //addr = base_addr + SIS3316_ADC_CH1_4_SPI_READBACK_REG  ; // removed 21.01.2015
    addr = base_addr + SIS3316_ADC_CH1_4_SPI_READBACK_REG + ((adc_fpga_group & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET) ; // changed 21.01.2015
    rc = CommDriver::vme_read32(vme_handle,addr,&data);
    
    if(isDebug){
-      if(rc != 0){
-         sprintf(msg,"adc_spi_read vme_A32D32_read 3: rc = 0x%08x", rc);
+      if(rc!=0){
+         sprintf(msg,"[SIS3316::adc_spi_read] vme_A32D32_read 3: rc = 0x%08x", rc);
          std::cout << msg << std::endl;
       }
    }
@@ -1629,21 +1637,20 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
 
    int rc;
    unsigned int data;
-   unsigned int addr;
    unsigned int previous_bank_addr_value;
    unsigned int req_nof_32bit_words;
    unsigned int got_nof_32bit_words;
    unsigned int memory_bank_offset_addr;
    unsigned int max_poll_counter;
 
+   u_int32_t addr      = 0x0;
    u_int32_t base_addr = fParameters.moduleBaseAddress;
 
    bool isDebug        = fParameters.debug; 
 
    // read previous Bank sample address
    // poll until it is valid.
-   addr = base_addr + SIS3316_ADC_CH1_PREVIOUS_BANK_SAMPLE_ADDRESS_REG 
-        + ((channel_no & 0x3) * 4) + (((channel_no >> 2) & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET);
+   addr = base_addr + SIS3316_ADC_CH1_PREVIOUS_BANK_SAMPLE_ADDRESS_REG + ((channel_no & 0x3) * 4) + (((channel_no >> 2) & 0x3) * SIS3316_FPGA_ADC_REG_OFFSET);
    max_poll_counter     = 10000;
    *dma_got_nof_words = 0;
    do {
@@ -1658,26 +1665,28 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
 
       max_poll_counter--;
 
-      if (max_poll_counter == 0) {
-         sprintf(msg,"[SIS3316]: Error: max_poll_counter = 0x%08x ", max_poll_counter);
+      if(max_poll_counter==0){
+         sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Error: max_poll_counter = 0x%08x ", max_poll_counter);
          std::cout << msg << std::endl;
-         sprintf(msg,"[SIS3316]: previous bank address value: 0x%08x",previous_bank_addr_value);
+         sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: previous bank address value: 0x%08x",previous_bank_addr_value);
          std::cout << msg << std::endl;
          return 0x900;
       }
 
    }while( ( (previous_bank_addr_value & 0x1000000) >> 24 )  != bank2_read_flag ); // previous Bank sample address is valid if bit 24 is equal bank2_read_flag 
 
-   if(isDebug) sprintf(msg,"[SIS3316]: previous bank address value: 0x%08x \n",previous_bank_addr_value);
-   std::cout << msg << std::endl;
-   if(isDebug) sprintf(msg,"[SIS3316]: addr = 0x%08x previous bank address value = 0x%08x \n",SIS3316_MOD_BASE+addr,previous_bank_addr_value);
-   std::cout << msg << std::endl;
+   if(isDebug){
+      sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: previous bank address value: 0x%08x",previous_bank_addr_value);
+      std::cout << msg << std::endl;
+      sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: addr = 0x%08x previous bank address value = 0x%08x \n",addr,previous_bank_addr_value);
+      std::cout << msg << std::endl;
+   }
 
    // check the obtained previous bank address; return zero if
    // we have nothing. 
    if( (previous_bank_addr_value & 0xffffff)==0 ){ // no data sampled !
-      std::cout << "[SIS3316]: No data sampled!" << std::endl;
-      sprintf(msg,"[SIS3316]: addr = 0x%08x previous bank address value = 0x%08x \n",SIS3316_MOD_BASE+addr,previous_bank_addr_value);
+      std::cout << "[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: No data sampled!" << std::endl;
+      sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: addr = 0x%08x previous bank address value = 0x%08x",addr,previous_bank_addr_value);
       std::cout << msg << std::endl;
       *dma_got_nof_words = 0;
       return 1;
@@ -1752,7 +1761,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
          // printf("number of 32-bit words: %d (0x%08x) \n",req_nof_32bit_words,req_nof_32bit_words); 
 
          if(req_nof_32bit_words > max_read_nof_words){
-            sprintf(msg,"[SIS3316]: Error: exceeded the allowed number of data words! Setting to maximum = %u.",max_read_nof_words);
+            sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Error: exceeded the allowed number of data words! Setting to maximum = %u.",max_read_nof_words);
             std::cout << msg << std::endl;
             req_nof_32bit_words = max_read_nof_words;
          }
@@ -1761,9 +1770,9 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
          // FIFO: first in, first out 
          rc = call_vme_A32MBLT64FIFO_read(vme_handle,addr,uint_adc_buffer,((req_nof_32bit_words + 1) & 0xfffffE),&got_nof_32bit_words); // N * 8-byte length  !!! 
 
-         if(rc != 0){
-            sprintf(msg,"[SIS3316]: Error: vme_A32MBLT64FIFO_read: rc = 0x%08x   addr = 0x%08x  req_nof_32bit_words = 0x%08x",
-                    rc,SIS3316_MOD_BASE + addr,req_nof_32bit_words);
+         if(rc!=0){
+            sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Error: vme_A32MBLT64FIFO_read: rc = 0x%08x   addr = 0x%08x  req_nof_32bit_words = 0x%08x",
+                    rc,addr,req_nof_32bit_words);
             std::cout << msg << std::endl;
             return rc;
          }
@@ -1781,7 +1790,8 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
             retry_flag = 1 ;
          }
          if (retry_counter > 1) {
-            sprintf(msg,"[SIS3316]: Info: retry_counter = %d",retry_counter);
+            sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Info: retry_counter = %d",retry_counter);
+            std::cout << msg << std::endl;
          }
       }
 
@@ -1790,7 +1800,6 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
       data = 0x00000000; // Reset
       rc = CommDriver::vme_write32(vme_handle,addr,data);
       // rc = i->vme_A32D32_write(this->baseaddress + addr, data);
-
       // if(rc != 0) {
       //    sprintf("Error: vme_A32D32_write: rc = 0x%08x   addr = 0x%08x  data = 0x%08x",rc,  this->baseaddress + addr, data);
       //    std::cout << msg << std::endl;
@@ -1798,12 +1807,13 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
       // }
    }while(retry_flag==1);
 
-   if (retry_counter > 15) {
-      sprintf(msg,"[SIS3316]: Tried too many times.");
+   if(retry_counter > 15) {
+      sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Tried too many times.");
       std::cout << msg << std::endl;
       return -1 ;
    }
-   return 0 ;
+
+   return 0;
 }
 //______________________________________________________________________________
 int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
@@ -1854,20 +1864,20 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
    u_int32_t read_data=0,read_data_2=0,addr_thresh=0;
    u_int32_t data_low=0,data_high=0;
    u_int32_t event_length = (u_int32_t)input_nof_samples;
+   
+   // std::cout << "PARS: Event length = " << event_length << " start_ch = " << start_ch << " end_ch = " << end_ch << std::endl;
 
    bank1_armed_flag = *fArmedBankFlag;  // keeping track of previous bank.  fArmedBankFlag: 0 => bank2 armed; 1 => bank1 armed   
 
    if(isDebug) std::cout << "[SIS3316::ReadOutData]: Starting the readout loop..." << std::endl;
    if(fEventNumber==1){
       if(isDebug){
-         sprintf(msg,"[SIS3316::ReadOutData]: THIS IS THE FIRST EVENT.  STARTING ON BANK 1");
-         std::cout << msg << std::endl;
-         sprintf(msg,"[SIS3316::ReadOutData]: SIS3316_KEY_DISARM_AND_ARM_BANK1");
-         std::cout << msg << std::endl;
+         std::cout << "[SIS3316::ReadOutData]: THIS IS THE FIRST EVENT.  STARTING ON BANK 1" << std::endl;
+         std::cout << "[SIS3316::ReadOutData]: SIS3316_KEY_DISARM_AND_ARM_BANK1" << std::endl;
       }
       // only do this on the first event to get things rolling 
       addr = base_addr + SIS3316_KEY_DISARM_AND_ARM_BANK1; 
-      rc = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank1
+      rc   = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank1
       bank1_armed_flag = 1; // start condition
    }
 
@@ -1920,16 +1930,16 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
    if(isDebug){
       printf("[SIS3316::ReadOutData]: address thresh  = %lu \n",(unsigned long int)addr_thresh);
       std::cout << msg << std::endl;
-      sprintf(msg,"[SIS3316::ReadOutData]: Address threshold reached!  Switching banks... \n");
+      sprintf(msg,"[SIS3316::ReadOutData]: Address threshold reached!  Switching banks...");
       std::cout << msg << std::endl;
       sprintf(msg,"[SIS3316::ReadOutData]: ACQUISITION CONTROL STATUS: 0x%08x\n", read_data);
       std::cout << msg << std::endl;
    }
 
    // get ready for next event: disarm current bank and arm the next bank 
-   if(bank1_armed_flag == 1){
+   if(bank1_armed_flag==1){
       addr = base_addr + SIS3316_KEY_DISARM_AND_ARM_BANK2; 
-      rc = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank2
+      rc   = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank2
       bank1_armed_flag = 0; // bank 2 is armed
       if(isDebug){
          sprintf(msg,"[SIS3316::ReadOutData]: SIS3316_KEY_DISARM_AND_ARM_BANK2");
@@ -1937,7 +1947,7 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
       }
    }else{
       addr = base_addr + SIS3316_KEY_DISARM_AND_ARM_BANK1; 
-      rc = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank1
+      rc   = CommDriver::vme_write32(vme_handle,addr,0x0);  //  Arm Bank1
       bank1_armed_flag = 1; // bank 1 is armed
       if(isDebug){
          sprintf(msg,"[SIS3316::ReadOutData]: SIS3316_KEY_DISARM_AND_ARM_BANK1");
@@ -1967,12 +1977,12 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
          std::cout << msg << std::endl;
       }
       rc = read_DMA_Channel_PreviousBankDataBuffer(vme_handle,
-                                                         bank1_armed_flag,
-                                                         ch,
-                                                         max_read_nof_words,
-                                                         &got_nof_32bit_words,
-                                                         adc_buffer,
-                                                         event_length);
+                                                   bank1_armed_flag,
+                                                   ch,
+                                                   max_read_nof_words,
+                                                   &got_nof_32bit_words,
+                                                   adc_buffer,
+                                                   event_length);
       if(isDebug){
          sprintf(msg,"[SIS3316::ReadOutData]: read_DMA_Channel_PreviousBankDataBuffer: ");
          std::cout << msg;
@@ -1995,7 +2005,7 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
             std::cout << msg << std::endl;
          }
       }else{
-         sprintf(msg,"[SIS3316::ReadOutData]: No 32-bit words found! No data recorded! Moving on...");
+         sprintf(msg,"[SIS3316::ReadOutData]: Return code = 0x%08x.  No 32-bit words found! No data recorded! Moving on...",rc);
          std::cout << msg << std::endl;
          rc = -97;
       }

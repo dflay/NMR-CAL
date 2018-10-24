@@ -222,7 +222,7 @@ namespace CommDriver {
       char msg[200]; 
       int rc = vme_A32D32_write(handle,addr,data);
       if(rc!=0){
-         sprintf(msg,"[CommDrier::vme_write32]: ERROR!  Write failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,data);
+         sprintf(msg,"[CommDriver::vme_write32]: ERROR!  Write failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,data);
          std::cout << msg << std::endl;
       }
       return rc;
@@ -232,7 +232,7 @@ namespace CommDriver {
       char msg[200]; 
       int rc = vme_A32D32_read(handle,addr,data);
       if(rc!=0){
-         sprintf(msg,"[CommDrier::vme_write32]: ERROR!  Read failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,*data);
+         sprintf(msg,"[CommDriver::vme_write32]: ERROR!  Read failed: rc = 0x%08x, addr = 0x%08x, data = 0x%08x",rc,addr,*data);
          std::cout << msg << std::endl;
       }
       return rc;

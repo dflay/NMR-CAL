@@ -69,19 +69,25 @@ int SISBase::ReadModuleID(){
    // modID  = module ID 
    // majRev = major revision 
    // minRev = minor revision
+   char msg[200],MID[10]; 
+   bool isDebug   = fParameters.debug; 
    u_int32_t addr = fParameters.moduleBaseAddress + 0x4;  
    u_int32_t data=0;
    int modID=0;
-   // int majRev=0,minRev=0;
+   int majRev=0,minRev=0;
    int rc    = CommDriver::vme_read32(fHandle,addr,&data);
    if(rc!=0){
       std::cout << "[SISBase::GetModuleID]:  Cannot read the module ID!" << std::endl;
       return 1;
    }else{
-      modID =  data >> 16;
-      fParameters.moduleID = modID; 
-      // majRev    = (data >> 8) & 0xff;  
-      // minRev    =  data & 0xff;  
+      modID  =  data >> 16;
+      majRev = (data >> 8) & 0xff;  
+      minRev =  data & 0xff; 
+      // fParameters.moduleID = modID;
+      sprintf(msg,"[SISBase::ReadModuleID]: Device info: Module ID = %04x, maj. rev. = %02x, min. rev. = %02x",modID,majRev,minRev); 
+      sprintf(MID,"%04x",modID);
+      fParameters.moduleID = std::atoi(MID);  
+      if(isDebug) std::cout << msg << std::endl; 
    }
    return 0;
 }

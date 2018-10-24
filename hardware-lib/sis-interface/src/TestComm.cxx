@@ -7,10 +7,12 @@
 #include "SIS3302.hh"
 #include "SIS3316.hh"
 
-int PrintToFile(const char *outpath,double clkFreq,std::vector<unsigned short> data); 
+int PrintToFile(const char *outpath,sisParameters_t par,std::vector<unsigned short> data); 
 
 int main(){
 
+   int rc=0;
+ 
    // configuration for the digitizer  
    sisParameters_t par; 
    par.moduleBaseAddress = 0x41000000;
@@ -18,31 +20,32 @@ int main(){
    par.clockFreqUnits    = SISInterface::MHz; 
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
-   par.channelNumber     = 1; 
+   par.channelNumber     = 1;
+   par.numberOfEvents    = 1; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
-   par.debug             = false;  
+   par.debug             = true;  
 
    std::string devPath = "/dev/sis1100_00remote";   // path to the digitizer 
 
    SIS3316 *my3316 = new SIS3316(par);
-   my3316->SetName("SIS3316"); 
    my3316->SetPath( devPath.c_str() );
    my3316->OpenConnection();
-   my3316->Initialize();  
+   my3316->Initialize(); 
 
    // now lets read some data 
    std::vector<unsigned short> data;
 
-   int rc=0;
    char outpath[512]; 
 
    const int NEV = 10; 
    for(int i=0;i<NEV;i++){
-      my3316->ReadOutData(data);      // read out the data to its internal buffer 
-      sprintf(outpath,"./output/sis%d_%d.csv",my3316->GetModuleID(),i+1);
-      rc = PrintToFile(outpath,par.clockFrequency,data); // print to file 
-      my3316->ReInitialize();     // prepare for next event 
+      rc = my3316->ReadOutData(data);       
+      // if(rc!=0) break; 
+      sprintf(outpath,"./output/sis%d_%02d.csv",my3316->GetModuleID(),i+1);
+      rc = PrintToFile(outpath,par,data); // print to file 
+      // prepare for next event
+      my3316->ReInitialize();      
       data.clear();
    } 
 
@@ -53,8 +56,15 @@ int main(){
    return rc;
 }
 //______________________________________________________________________________
-int PrintToFile(const char *outpath,double clkFreq,std::vector<unsigned short> data){
+int PrintToFile(const char *outpath,sisParameters_t par,std::vector<unsigned short> data){
    // print the data to a CSV file 
+   double sf=1;
+   if( par.clockFreqUnits==SISInterface::Hz  ) sf = 1;
+   if( par.clockFreqUnits==SISInterface::kHz ) sf = 1E+3;
+   if( par.clockFreqUnits==SISInterface::MHz ) sf = 1E+6;
+   if( par.clockFreqUnits==SISInterface::GHz ) sf = 1E+9;
+   double clkFreq = par.clockFrequency*sf; 
+
    double time=0;
    const int N = data.size();
    char outStr[200];
