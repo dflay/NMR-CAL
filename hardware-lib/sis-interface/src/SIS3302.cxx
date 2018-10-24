@@ -5,7 +5,7 @@ SIS3302::SIS3302(sisParameters_t par){
 }
 //______________________________________________________________________________
 SIS3302::~SIS3302(){
-   ClearData(); 
+
 }
 //______________________________________________________________________________
 int SIS3302::Initialize(){
@@ -75,8 +75,7 @@ int SIS3302::ReInitialize(){
    // the number of events is the "larger unit" compared to 
    // number of samples... that is, 1 event = N samples.  
    double signal_length   = fParameters.signalLength;
-   double sampling_period = fParameters.clockPeriod;
-   double event_length_f  = signal_length/sampling_period; // total samples per event = time_of_signal/sample_period 
+   double event_length_f  = signal_length*fParameters.clockFrequency; // total samples per event = time_of_signal*sample_rate 
    u_int32_t event_length = (u_int32_t)event_length_f;
    int event_length_int   = (int)event_length_f;
 
@@ -111,7 +110,7 @@ int SIS3302::ReInitialize(){
    return rc;
 } 
 //______________________________________________________________________________
-int SIS3302::ReadOutData(){
+int SIS3302::ReadOutData(std::vector<unsigned short> &outData){
 
    // read out a single pulse to the fData vector  
 
@@ -123,7 +122,7 @@ int SIS3302::ReadOutData(){
 
    const int NUM_SAMPLES    = fParameters.numberOfSamples;
    u_int32_t NUM_SAMPLES_ul = (u_int32_t)NUM_SAMPLES;
-   fData.resize(NUM_SAMPLES); 
+   outData.resize(NUM_SAMPLES); 
 
    u_int32_t *data32       = (u_int32_t *)malloc( sizeof(u_int32_t)*NUM_SAMPLES );
 
@@ -169,8 +168,8 @@ int SIS3302::ReadOutData(){
    for(int i=0;i<NUM_SAMPLES/2;i++){
       data1          =  data32[i] & 0x0000ffff;             // low bytes 
       data2          = (data32[i] & 0xffff0000)/pow(2,16);  // high bytes 
-      fData[i*2]     = (unsigned short)data1;
-      fData[i*2+1]   = (unsigned short)data2;
+      outData[i*2]   = (unsigned short)data1;
+      outData[i*2+1] = (unsigned short)data2;
    }
 
    return 0;

@@ -39,11 +39,11 @@ int main(){
 
    const int NEV = 10; 
    for(int i=0;i<NEV;i++){
-      my3316->ReadOutData();      // read out the data to its internal buffer 
-      my3316->GetData(data);      // pull data out of class 
+      my3316->ReadOutData(data);      // read out the data to its internal buffer 
       sprintf(outpath,"./output/sis%d_%d.csv",my3316->GetModuleID(),i+1);
       rc = PrintToFile(outpath,par.clockFrequency,data); // print to file 
       my3316->ReInitialize();     // prepare for next event 
+      data.clear();
    } 
 
    my3316->CloseConnection(); 

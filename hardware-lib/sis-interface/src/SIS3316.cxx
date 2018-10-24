@@ -7,7 +7,7 @@ SIS3316::SIS3316(sisParameters_t par){
 }
 //______________________________________________________________________________
 SIS3316::~SIS3316(){
-   ClearData(); 
+
 }
 //______________________________________________________________________________
 int SIS3316::Initialize(){
@@ -1806,7 +1806,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
    return 0 ;
 }
 //______________________________________________________________________________
-int SIS3316::ReadOutData(){
+int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
 
    // Samples an NMR pulse when called.  After the address threshold is reached 
    // for a single event (i.e., pulse), the current memory bank is disarmed and the idle 
@@ -1849,7 +1849,7 @@ int SIS3316::ReadOutData(){
    // apparently this works better for large arrays...
    u_int32_t *adc_buffer    = static_cast<u_int32_t *>( malloc( sizeof(u_int32_t)*SIZE     ) );
    // u_int16_t *adc_buffer_us = static_cast<u_int16_t *>( malloc( sizeof(u_int16_t)*(2*SIZE) ) );
-   fData.resize(SIZE);  
+   outData.resize(SIZE);  
 
    u_int32_t read_data=0,read_data_2=0,addr_thresh=0;
    u_int32_t data_low=0,data_high=0;
@@ -1985,10 +1985,10 @@ int SIS3316::ReadOutData(){
    if(rc!=0x900){
       if(got_nof_32bit_words>0){
          for(i=0;i<got_nof_32bit_words;i++){
-            data_low     =  adc_buffer[i] & 0x0000ffff;
-            data_high    = (adc_buffer[i] & 0xffff0000)/pow(2,16);
-            fData[i*2]   = (u_int16_t)data_low;
-            fData[i*2+1] = (u_int16_t)data_high;
+            data_low       =  adc_buffer[i] & 0x0000ffff;
+            data_high      = (adc_buffer[i] & 0xffff0000)/pow(2,16);
+            outData[i*2]   = (u_int16_t)data_low;
+            outData[i*2+1] = (u_int16_t)data_high;
          }
          if(isDebug){
             sprintf(msg,"[SIS3316::ReadOutData]: Event %d: Recorded %d 32-bit data-words.",fEventNumber,got_nof_32bit_words);

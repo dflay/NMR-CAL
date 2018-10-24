@@ -53,7 +53,7 @@ class SISBase: public Device {
 
       virtual int Initialize();
       virtual int ReInitialize(); 
-      virtual int ReadOutData(); 
+      virtual int ReadOutData(std::vector<unsigned short> &x); 
 
       int ReadModuleID();
 
@@ -69,13 +69,9 @@ class SISBase: public Device {
       void SetSignalLength(double x,int units=SISInterface::sec); 
      
       int GetModuleID()                           const { return fParameters.moduleID; }
-      int GetData(std::vector<unsigned short> &x) const;   // return the data to the application  
 
    protected:
       sisParameters_t fParameters;
-      std::vector<unsigned short> fData;        // this is the data read out by the ADC
-
-      void ClearData()                          { fData.clear(); } 
 
 };
 

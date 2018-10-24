@@ -23,7 +23,7 @@ class SIS3316: public SISBase {
 
       int Initialize();
       int ReInitialize();
-      int ReadOutData();
+      int ReadOutData(std::vector<unsigned short> &outData);
 
    private: 
 

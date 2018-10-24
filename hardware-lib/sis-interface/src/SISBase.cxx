@@ -37,14 +37,13 @@ void SISBase::SetClockFrequency(double freq,int units){
    if(units==SISInterface::MHz) sf = 1E+6;
    if(units==SISInterface::GHz) sf = 1E+9;
    fParameters.clockFrequency  = sf*freq;
-   fParameters.clockPeriod     = 1./freq; 
    fParameters.clockFreqUnits  = units;  
 }
 //______________________________________________________________________________
 void SISBase::SetSignalLength(double x,int units){
    // calculate the signal length in seconds 
    // retain the input units label for later use 
-   double sf=1; 
+   double sf=1.; 
    if(units==SISInterface::nsec) sf = 1E-9;
    if(units==SISInterface::usec) sf = 1E-6;
    if(units==SISInterface::msec) sf = 1E-3;
@@ -61,17 +60,7 @@ int SISBase::ReInitialize(){
    return 0;
 }
 //______________________________________________________________________________
-int SISBase::ReadOutData(){
-   return 0;
-}
-//______________________________________________________________________________
-int SISBase::GetData(std::vector<unsigned short> &x) const{
-   const int N = fData.size();
-   if(N<=0){
-      std::cout << "[SISBase::GetData]: No data in buffer!" << std::endl;
-      return 1;
-   }
-   for(int i=0;i<N;i++) x.push_back(fData[i]); 
+int SISBase::ReadOutData(std::vector<unsigned short> &x){
    return 0;
 }
 //______________________________________________________________________________
