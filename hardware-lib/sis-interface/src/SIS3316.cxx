@@ -2,7 +2,8 @@
 //______________________________________________________________________________
 SIS3316::SIS3316(sisParameters_t par){
    SetParameters(par);
-   fEventNumber = 1;
+   fEventNumber    = 1;  // assume we start from event 1 
+   *fArmedBankFlag = 0;  // assume bank 2 is armed 
 }
 //______________________________________________________________________________
 SIS3316::~SIS3316(){
@@ -1854,7 +1855,7 @@ int SIS3316::ReadOutData(){
    u_int32_t data_low=0,data_high=0;
    u_int32_t event_length = (u_int32_t)input_nof_samples;
 
-   bank1_armed_flag = 0; // *armed_bank_flag;  // keeping track of previous bank.  armed_bank_flag: 0 => bank2 armed; 1 => bank1 armed   
+   bank1_armed_flag = *fArmedBankFlag;  // keeping track of previous bank.  fArmedBankFlag: 0 => bank2 armed; 1 => bank1 armed   
 
    if(isDebug) std::cout << "[SIS3316::ReadOutData]: Starting the readout loop..." << std::endl;
    if(fEventNumber==1){
@@ -1950,7 +1951,7 @@ int SIS3316::ReadOutData(){
    }
 
    // bookkeeping of armed bank
-   // *armed_bank_flag = bank1_armed_flag;
+   *fArmedBankFlag = bank1_armed_flag;
 
    if(isDebug){
       sprintf(msg,"[SIS3316::ReadOutData]: BANK1 FLAG IS NOW %d",bank1_armed_flag);
