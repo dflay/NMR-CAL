@@ -14,16 +14,28 @@ SISBase::~SISBase(){
 //______________________________________________________________________________
 void SISBase::SetParameters(sisParameters_t par){
    fParameters.moduleBaseAddress  = par.moduleBaseAddress;  
-   fParameters.clockFrequency     = par.clockFrequency;  
-   fParameters.clockPeriod        = par.clockPeriod;  
-   fParameters.signalLength       = par.signalLength; 
    fParameters.moduleID           = par.moduleID;  
    fParameters.channelNumber      = par.channelNumber;  
    fParameters.numberOfEvents     = par.numberOfEvents;  
-   fParameters.numberOfSamples    = par.numberOfSamples;  
    fParameters.clockType          = par.clockType;  
    fParameters.multiEventState    = par.multiEventState;  
-   fParameters.debug              = par.debug;  
+   fParameters.debug              = par.debug; 
+   // get the clock frequency in Hz 
+   double sf=1.;
+   if( par.clockFreqUnits==SISInterface::Hz ) sf = 1;
+   if( par.clockFreqUnits==SISInterface::kHz) sf = 1E+3;
+   if( par.clockFreqUnits==SISInterface::MHz) sf = 1E+6;
+   if( par.clockFreqUnits==SISInterface::GHz) sf = 1E+9;
+   fParameters.clockFrequency  = sf*par.clockFrequency;
+   fParameters.clockPeriod     = 1./fParameters.clockFrequency;  
+   // now the signal length in seconds  
+   if( par.signalLengthUnits==SISInterface::nsec) sf = 1E-9;
+   if( par.signalLengthUnits==SISInterface::usec) sf = 1E-6;
+   if( par.signalLengthUnits==SISInterface::msec) sf = 1E-3;
+   if( par.signalLengthUnits==SISInterface::sec ) sf = 1;
+   fParameters.signalLength    = sf*par.signalLength;
+   // derived terms  
+   fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;  
 }
 //______________________________________________________________________________
 int SISBase::Initialize(){
@@ -48,7 +60,7 @@ int SISBase::GetData(std::vector<unsigned short> &x) const{
    return 0;
 }
 //______________________________________________________________________________
-int SISBase::GetModuleID(){
+int SISBase::ReadModuleID(){
    // read the device ID data 
    // modID  = module ID 
    // majRev = major revision 
@@ -60,12 +72,12 @@ int SISBase::GetModuleID(){
    int rc    = CommDriver::vme_read32(fHandle,addr,&data);
    if(rc!=0){
       std::cout << "[SISBase::GetModuleID]:  Cannot read the module ID!" << std::endl;
-      return -1;
+      return 1;
    }else{
       modID =  data >> 16;
       fParameters.moduleID = modID; 
       // majRev    = (data >> 8) & 0xff;  
       // minRev    =  data & 0xff;  
    }
-   return fParameters.moduleID;
+   return 0;
 }

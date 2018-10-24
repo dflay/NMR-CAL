@@ -60,7 +60,7 @@ int SIS3316::Initialize(){
    }
 
    if(isDebug) std::cout << "[SIS3316::Initialize]: Reading the MOD ID..." << std::endl;
-   int rc = GetModuleID();
+   int rc = ReadModuleID();
    if( isDebug && rc==0) std::cout << "[SIS3316::Initialize]: Done."   << std::endl;
    if( isDebug || rc!=0) std::cout << "[SIS3316::Initialize]: Failed!" << std::endl;
    usleep(1);
@@ -282,7 +282,6 @@ int SIS3316::Initialize(){
 //______________________________________________________________________________
 int SIS3316::ReInitialize(){
    // re-initialize the digitizer in the case that the event length has changed
-   fEventNumber++;  // increment the event number 
 
    // input from user 
    int vme_handle                   = fHandle;
@@ -535,18 +534,27 @@ int SIS3316::configure_clock(int use_ext_clock,int adc_125MHz_flag){
    int ClockFreq=0;
    int ClockFreq_in_units=0;
 
-   std::string units = fParameters.clockFreqUnits; 
+   int units = fParameters.clockFreqUnits; 
 
-   if(use_ext_clock==1){
+   std::string unitStr = "Hz";
+
+   if(use_ext_clock==SISInterface::kExternal){
       ClockFreq          = (int)fParameters.clockFrequency;
       units              = fParameters.clockFreqUnits;
       ClockFreq_in_units = 0;
-      if( units.compare("kHz")==0 ) ClockFreq_in_units = ClockFreq/1E+3;
-      if( units.compare("MHz")==0 ) ClockFreq_in_units = ClockFreq/1E+6;
-      if( units.compare("GHz")==0 ) ClockFreq_in_units = ClockFreq/1E+9;
+      if( units==SISInterface::kHz ){
+         ClockFreq_in_units = ClockFreq/1E+3;
+         unitStr = "kHz";
+      }else if( units==SISInterface::MHz ){
+         ClockFreq_in_units = ClockFreq/1E+6;
+         unitStr = "MHz"; 
+      }else if( units==SISInterface::GHz ){
+         ClockFreq_in_units = ClockFreq/1E+9;
+         unitStr = "GHz";
+      } 
    }
 
-   if(use_ext_clock==0){
+   if(use_ext_clock==SISInterface::kInternal){
       if(adc_125MHz_flag==0){
          // 250  MHz
          if(isDebug) std::cout << "[SIS3316::configure_clock]: Using internal clock: 250 MHz..." << std::endl;
@@ -564,10 +572,10 @@ int SIS3316::configure_clock(int use_ext_clock,int adc_125MHz_flag){
       rc = change_frequency_HSdiv_N1div(vme_handle,0,clock_HSdiv,clock_N1div);
       if(isDebug && rc==0) std::cout << "[SIS3316::configure_clock]: Done." << std::endl;
       if(isDebug || rc!=0) std::cout << "[SIS3316::configure_clock]: Failed!" << std::endl;
-   }else if(use_ext_clock==1){
+   }else if(use_ext_clock==SISInterface::kExternal){
       iob_delay_value = 0x0;
       if(isDebug){
-         sprintf(msg,"[SIS3316::configure_clock]: Using external clock: %d %s",ClockFreq_in_units,units.c_str());
+         sprintf(msg,"[SIS3316::configure_clock]: Using external clock: %d %s",ClockFreq_in_units,unitStr.c_str());
          std::cout << msg << std::endl;
          sprintf(msg,"[SIS3316::configure_clock]: Setting sample clock distribution control to 3 (external lemo)...\n");
          std::cout << msg << std::endl;
@@ -2002,6 +2010,8 @@ int SIS3316::ReadOutData(){
       sprintf(msg,"[SIS3316::SIS3316SampleData]: event length = %lu",(unsigned long int)event_length);
       std::cout << msg << std::endl;
    }
+   
+   fEventNumber++;  // increment the event number 
 
    return rc;
 }

@@ -18,7 +18,22 @@
 
 #define MAX_NUMBER_LWORDS_64MBYTE 0x1000000       // 64MB 
 
-namespace SISInterface { 
+namespace SISInterface {
+
+   enum freqUnits{
+      Hz  = 0,
+      kHz = 1,
+      MHz = 2,
+      GHz = 3
+   };
+
+   enum timeUnits{
+      sec  = 0,
+      msec = 1,
+      usec = 2,
+      nsec = 3 
+   };
+ 
    enum clkType{
       kInternal = 0,
       kExternal = 1
@@ -40,7 +55,7 @@ class SISBase: public Device {
       virtual int ReInitialize(); 
       virtual int ReadOutData(); 
 
-      int GetModuleID();
+      int ReadModuleID();
 
       void SetParameters( sisParameters_t par = sisParameters() ); 
       void SetModuleBaseAddress(u_int32_t addr) { fParameters.moduleBaseAddress = addr;  }
@@ -55,6 +70,7 @@ class SISBase: public Device {
       void SetMultiEventStatus(int t)           { fParameters.multiEventState   = t;     }  
       void SetDebugMode(bool t)                 { fParameters.debug             = t;     }
      
+      int GetModuleID()                           const { return fParameters.moduleID; }
       int GetData(std::vector<unsigned short> &x) const;   // return the data to the application  
 
    protected:

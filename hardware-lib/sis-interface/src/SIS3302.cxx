@@ -22,43 +22,43 @@ int SIS3302::Initialize(){
    u_int32_t addr      = 0x0;  
 
    int rc=0;
-   if(isDebug) std::cout << "[SISInterface::initialize_3302]: Configuring..." << std::endl;
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Configuring..." << std::endl;
 
    u_int32_t data32 = 0;
 
    // reset StruckADC to power-up state and clear all sampled data from memory
-   if(isDebug) std::cout << "[SISInterface::initialize_3302]: Issuing key reset..." << std::endl;
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Issuing key reset..." << std::endl;
    addr = base_addr + SIS3302_KEY_RESET; 
    rc = CommDriver::vme_write32(vme_handle,addr,0x0);
-   if(isDebug) std::cout << "[SISInterface::initialize_3302]: --> Done" << std::endl;
+   if(isDebug) std::cout << "[SIS3302::Initialize]: --> Done" << std::endl;
 
-   rc = GetModuleID();
+   rc = ReadModuleID();
 
    int multiEventState = fParameters.multiEventState; 
 
    // general configuration settings
    if(multiEventState==0){
       // multi-event state disabled
-      std::cout << "[SISInterface::initialize_3302]: ADC in SINGLE-EVENT mode. \n" << std::endl;
+      std::cout << "[SIS3302::Initialize]: ADC in SINGLE-EVENT mode. \n" << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
          + SIS3302_ACQ_DISABLE_AUTOSTART
          + SIS3302_ACQ_DISABLE_MULTIEVENT;
    }else if(multiEventState==1){
       // multi-event state enabled
-      std::cout<< "[SISInterface::initialize_3302]: ADC in MULTI-EVENT mode. \n" << std::endl;
+      std::cout<< "[SIS3302::Initialize]: ADC in MULTI-EVENT mode. \n" << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
          + SIS3302_ACQ_DISABLE_AUTOSTART
          + SIS3302_ACQ_ENABLE_MULTIEVENT;
    }else{
-      std::cout << "[SISInterface::initialize_3302]: ADC event mode not properly set!  Defaulting to single-event mode..." << std::endl;
+      std::cout << "[SIS3302::Initialize]: ADC event mode not properly set!  Defaulting to single-event mode..." << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
          + SIS3302_ACQ_DISABLE_AUTOSTART
          + SIS3302_ACQ_DISABLE_MULTIEVENT;
    }
-   if(isDebug) std::cout << "[SISInterface::initialize_3302]: Applying settings..." << std::endl;
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Applying settings..." << std::endl;
    addr = base_addr + SIS3302_ACQUISTION_CONTROL; 
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
-   if(isDebug) std::cout << "[SISInterface::initialize_3302]: --> Done" << std::endl;
+   if(isDebug) std::cout << "[SIS3302::Initialize]: --> Done" << std::endl;
    return rc;
 }
 //______________________________________________________________________________
@@ -158,7 +158,7 @@ int SIS3302::ReadOutData(){
       if(rc==0){
          sprintf(msg,"[SIS3302::ReadOutData]: Block read return code = %d ",rc);
       }else{
-         sprintf(msg,"[SIS3302::ReadData]: ERROR! Block read return code = %d, num words = %d",rc,NumWords);
+         sprintf(msg,"[SIS3302::ReadOutData]: ERROR! Block read return code = %d, num words = %d",rc,NumWords);
       }
       std::cout << msg << std::endl;
    }
