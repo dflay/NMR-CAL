@@ -20,24 +20,37 @@ void SISBase::SetParameters(sisParameters_t par){
    fParameters.clockType          = par.clockType;  
    fParameters.multiEventState    = par.multiEventState;  
    fParameters.debug              = par.debug; 
-   // get the clock frequency in Hz 
-   double sf=1.;
-   if( par.clockFreqUnits==SISInterface::Hz ) sf = 1;
-   if( par.clockFreqUnits==SISInterface::kHz) sf = 1E+3;
-   if( par.clockFreqUnits==SISInterface::MHz) sf = 1E+6;
-   if( par.clockFreqUnits==SISInterface::GHz) sf = 1E+9;
-   fParameters.clockFrequency  = sf*par.clockFrequency;
-   fParameters.clockPeriod     = 1./fParameters.clockFrequency; 
-   fParameters.clockFreqUnits  = par.clockFreqUnits;  
-   // now the signal length in seconds  
-   if( par.signalLengthUnits==SISInterface::nsec) sf = 1E-9;
-   if( par.signalLengthUnits==SISInterface::usec) sf = 1E-6;
-   if( par.signalLengthUnits==SISInterface::msec) sf = 1E-3;
-   if( par.signalLengthUnits==SISInterface::sec ) sf = 1;
-   fParameters.signalLength      = sf*par.signalLength;
-   fParameters.signalLengthUnits = par.signalLengthUnits;  
+   // set the clock frequency and signal length in dedicated functions 
+   // since they come with their own units  
+   SetClockFrequency(par.clockFrequency,par.clockFreqUnits); 
+   SetSignalLength(par.signalLength,par.signalLengthUnits);  
    // derived terms  
    fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;  
+}
+//______________________________________________________________________________
+void SISBase::SetClockFrequency(double freq,int units){
+   // get the clock frequency in Hz
+   // retain the input units label for later use 
+   double sf=1.;
+   if(units==SISInterface::Hz ) sf = 1;
+   if(units==SISInterface::kHz) sf = 1E+3;
+   if(units==SISInterface::MHz) sf = 1E+6;
+   if(units==SISInterface::GHz) sf = 1E+9;
+   fParameters.clockFrequency  = sf*freq;
+   fParameters.clockPeriod     = 1./freq; 
+   fParameters.clockFreqUnits  = units;  
+}
+//______________________________________________________________________________
+void SISBase::SetSignalLength(double x,int units){
+   // calculate the signal length in seconds 
+   // retain the input units label for later use 
+   double sf=1; 
+   if(units==SISInterface::nsec) sf = 1E-9;
+   if(units==SISInterface::usec) sf = 1E-6;
+   if(units==SISInterface::msec) sf = 1E-3;
+   if(units==SISInterface::sec ) sf = 1;
+   fParameters.signalLength      = sf*x;
+   fParameters.signalLengthUnits = units;  
 }
 //______________________________________________________________________________
 int SISBase::Initialize(){

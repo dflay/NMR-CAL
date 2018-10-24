@@ -59,16 +59,14 @@ class SISBase: public Device {
 
       void SetParameters( sisParameters_t par = sisParameters() ); 
       void SetModuleBaseAddress(u_int32_t addr) { fParameters.moduleBaseAddress = addr;  }
-      void SetClockFrequency(double f)          { fParameters.clockFrequency    = f;     } 
-      void SetClockPeriod(double t)             { fParameters.clockPeriod       = t;     }
-      void SetSignalLength(double x)            { fParameters.signalLength      = x;     } 
       void SetModuleID(int modID)               { fParameters.moduleID          = modID; }
       void SetChannelNumber(int ch)             { fParameters.channelNumber     = ch;    } 
       void SetNumberOfEvents(int nev)           { fParameters.numberOfEvents    = nev;   }   
-      void SetNumberOfSamples(int s)            { fParameters.numberOfSamples   = s;     }  
       void SetClockType(int t)                  { fParameters.clockType         = t;     }
       void SetMultiEventStatus(int t)           { fParameters.multiEventState   = t;     }  
       void SetDebugMode(bool t)                 { fParameters.debug             = t;     }
+      void SetClockFrequency(double f,int units=SISInterface::Hz); 
+      void SetSignalLength(double x,int units=SISInterface::sec); 
      
       int GetModuleID()                           const { return fParameters.moduleID; }
       int GetData(std::vector<unsigned short> &x) const;   // return the data to the application  
