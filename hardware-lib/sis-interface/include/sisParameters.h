@@ -5,11 +5,11 @@
 
 typedef struct sisParameters { 
    u_int32_t moduleBaseAddress;      // address of digitizer (numbers from the two swtiches on the device)  
-   double clockFrequency;            // clock frequency in Hz 
-   double clockPeriod;               // clock period in sec 
+   double clockFrequency;            // clock frequency in Hz [computed using input units below]
+   double clockPeriod;               // clock period in sec   [computed using input units below]  
    double signalLength;              // time duration of anticipated signal in sec 
-   int clockFreqUnits;               // kHz, MHz, GHz 
-   int signalLengthUnits;            // usec, msec, sec
+   int clockFreqUnits;               // [INPUT] kHz, MHz, GHz 
+   int signalLengthUnits;            // [INPUT] usec, msec, sec
    int moduleID;                     // 3302 or 3316 
    int channelNumber;                // channel number to read out 
    int numberOfEvents;               // number of events 

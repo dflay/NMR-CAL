@@ -27,13 +27,15 @@ void SISBase::SetParameters(sisParameters_t par){
    if( par.clockFreqUnits==SISInterface::MHz) sf = 1E+6;
    if( par.clockFreqUnits==SISInterface::GHz) sf = 1E+9;
    fParameters.clockFrequency  = sf*par.clockFrequency;
-   fParameters.clockPeriod     = 1./fParameters.clockFrequency;  
+   fParameters.clockPeriod     = 1./fParameters.clockFrequency; 
+   fParameters.clockFreqUnits  = par.clockFreqUnits;  
    // now the signal length in seconds  
    if( par.signalLengthUnits==SISInterface::nsec) sf = 1E-9;
    if( par.signalLengthUnits==SISInterface::usec) sf = 1E-6;
    if( par.signalLengthUnits==SISInterface::msec) sf = 1E-3;
    if( par.signalLengthUnits==SISInterface::sec ) sf = 1;
-   fParameters.signalLength    = sf*par.signalLength;
+   fParameters.signalLength      = sf*par.signalLength;
+   fParameters.signalLengthUnits = par.signalLengthUnits;  
    // derived terms  
    fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;  
 }
