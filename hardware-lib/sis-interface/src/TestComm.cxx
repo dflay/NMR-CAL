@@ -20,7 +20,7 @@ int main(){
    par.clockFreqUnits    = SISInterface::MHz; 
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
-   par.outputUnits       = SISInterface::kVolts; 
+   par.outputUnits       = SISInterface::Volts; 
    par.channelNumber     = 2;
    par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 

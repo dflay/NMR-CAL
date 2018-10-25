@@ -2065,7 +2065,7 @@ int SIS3316::ReadOutData(std::vector<double> &outData){
             data_high      = (adc_buffer[i] & 0xffff0000)/pow(2,16);
             d1             = (u_int16_t)data_low;
             d2             = (u_int16_t)data_high;
-            if( fParameters.outputUnits==SISInterface::kVolts ){
+            if( fParameters.outputUnits==SISInterface::Volts ){
                D1 = ConvertToVoltage(d1);
                D2 = ConvertToVoltage(d2);
             }else{
