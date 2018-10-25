@@ -361,14 +361,14 @@ int SIS3316::ReInitialize(){
 
    char msg[512]; 
    
-   std::cout << "[SIS3316::ReInitialize]: Initializing..." << std::endl;
+   // std::cout << "[SIS3316::ReInitialize]: Initializing..." << std::endl;
 
    if(input_nof_samples>raw_buf_max){
       use_ext_raw_buf      = 1;
       ext_raw_data_buf_reg = event_length;
       sprintf(msg,"[SIS3316::ReInitialize]: Using EXTENDED raw data buffer (number of samples = %lu)",
             (unsigned long)input_nof_samples);
-      std::cout << msg << std::endl;
+      if(isDebug) std::cout << msg << std::endl;
    }else{
       // ANDed with 1s to make sure it's 16 bits wide; 
       // bit-shifted to the left by 16 to meet register requirements 
@@ -579,7 +579,7 @@ int SIS3316::ReInitialize(){
    if(isDebug && fail==0) std::cout << "[SIS3316::ReInitialize]: Done. " << std::endl;
    if(fail!=0) std::cout << "[SIS3316::ReInitialize]: Failed " << fail << " times!" << std::endl;
 
-   if(rc==0) std::cout << "[SIS3316::ReInitialize]: Done!" << std::endl;
+   // if(rc==0) std::cout << "[SIS3316::ReInitialize]: Done!" << std::endl;
    return rc;
 }
 //______________________________________________________________________________
@@ -1720,7 +1720,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
       // get the previous (memory) bank address 
       rc = CommDriver::vme_read32(vme_handle,addr,&previous_bank_addr_value); // 
       sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: addr = 0x%08x previous bank addr = 0x%08x",addr,previous_bank_addr_value); 
-      std::cout << msg << std::endl; 
+      // std::cout << msg << std::endl; 
       if(rc!=0) {
          sprintf(msg,"[CommDriver::vme_read32]: Error: vme_A32D32_read: rc = 0x%08x addr = 0x%08x", rc,addr);
          std::cout << msg << std::endl;

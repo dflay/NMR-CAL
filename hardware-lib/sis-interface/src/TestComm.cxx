@@ -40,8 +40,9 @@ int main(){
 
    const int NEV = par.numberOfEvents; 
    for(int i=0;i<NEV;i++){
+      std::cout << "Processing event " << i+1 << std::endl;
       rc = my3316->ReadOutData(data);       
-      // if(rc!=0) break; 
+      if(rc!=0) break; 
       sprintf(outpath,"./output/sis%d_%02d.csv",my3316->GetModuleID(),i+1);
       rc = PrintToFile(outpath,par,data); // print to file 
       // prepare for next event
