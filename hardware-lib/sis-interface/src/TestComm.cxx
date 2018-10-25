@@ -21,10 +21,10 @@ int main(){
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
    par.channelNumber     = 1;
-   par.numberOfEvents    = 1; 
+   par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
-   par.debug             = true;  
+   par.debug             = false;  
 
    std::string devPath = "/dev/sis1100_00remote";   // path to the digitizer 
 
@@ -38,7 +38,7 @@ int main(){
 
    char outpath[512]; 
 
-   const int NEV = 10; 
+   const int NEV = par.numberOfEvents; 
    for(int i=0;i<NEV;i++){
       rc = my3316->ReadOutData(data);       
       // if(rc!=0) break; 
