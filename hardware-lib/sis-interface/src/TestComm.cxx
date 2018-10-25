@@ -26,7 +26,7 @@ int main(){
    par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
-   par.debug             = false;  
+   par.debug             = true;  
 
    std::string devPath = "/dev/sis1100_00remote";   // path to the digitizer 
 
@@ -35,6 +35,8 @@ int main(){
    myADC->SetPath( devPath.c_str() );
    myADC->OpenConnection();
    myADC->Initialize();
+
+   std::cout << "READY" << std::endl;
 
    // now lets read some data 
    std::vector<double> data;
@@ -48,8 +50,7 @@ int main(){
       if(rc!=0) break; 
       sprintf(outpath,"./output/sis%d_ch-%02d_%02d.csv",myADC->GetModuleID(),par.channelNumber,i+1);
       rc = PrintToFile(outpath,par,data); // print to file 
-      // prepare for next event (3316 only) 
-      // myADC->ReInitialize();      
+      myADC->ReInitialize();      
       data.clear();
    } 
 

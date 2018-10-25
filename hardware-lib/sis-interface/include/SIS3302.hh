@@ -17,6 +17,7 @@ class SIS3302: public SISBase {
       int ReadOutData(std::vector<double> &outData);
 
    private: 
+      int fEventNumber;
       int set_clock_freq(int vme_handle,int clock_state,int freq_mhz);
 
 }; 

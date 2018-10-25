@@ -1,7 +1,8 @@
 #include "SIS3302.hh"
 //______________________________________________________________________________
 SIS3302::SIS3302(sisParameters_t par){
-   fName = "SIS3302"; 
+   fName = "SIS3302";
+   fEventNumber=1;
    SetParameters(par); 
 }
 //______________________________________________________________________________
@@ -89,6 +90,9 @@ int SIS3302::Initialize(){
    addr = base_addr + SIS3302_KEY_ARM; 
    rc = CommDriver::vme_write32(vme_handle,addr,0x0);
 
+   // set the event length as well
+   rc = ReInitialize(); 
+
    return rc;
 }
 //______________________________________________________________________________
@@ -110,32 +114,32 @@ int SIS3302::ReInitialize(){
    int event_length_int   = (int)event_length_f;
 
    char msg[512]; 
-   // sprintf(msg,"[SISInterface::reinitialize_3302]: signal_length = %.0lf, sampling period = %.3E, event_length = %.0lf",signal_length,sampling_period,event_length_f);
-   // std::cout << msg << std::endl; 
 
    sprintf(msg,"[SIS3302::ReInitialize]: Setting up to record %d samples per event...",event_length_int);
    if(isDebug) std::cout << msg << std::endl;
 
    // set the event length 
-   u_int32_t data32 = (event_length - 4) & 0xfffffC;       // what is this wizardry? no idea, from StruckADC manual.
+   u_int32_t data32 = (event_length - 4 + 512) & 0xfffffC;       // what is this wizardry? no idea, from StruckADC manual.
    addr = base_addr + SIS3302_SAMPLE_LENGTH_ALL_ADC; 
    int rc = CommDriver::vme_write32(vme_handle,addr,data32);
 
-   int NumberOfEvents = fParameters.numberOfEvents;
-
-   int PULSES_PER_READ = 5; 
-
+   // read out 1 event at a time 
+   int EVENTS_PER_READ = 1; 
    addr = base_addr + SIS3302_MAX_NOF_EVENT; 
-   if(NumberOfEvents>PULSES_PER_READ){
-      rc = CommDriver::vme_write32(vme_handle,addr,PULSES_PER_READ);
-   }else{
-      rc = CommDriver::vme_write32(vme_handle,addr,NumberOfEvents);
+   rc = CommDriver::vme_write32(vme_handle,addr,EVENTS_PER_READ);
+   if(rc!=0){
+      sprintf(msg,"[SIS3302::ReInitialize]: ERROR! Cannot set maximum number of events!");
+      std::cout << msg << std::endl;
    }
 
-   if(isDebug) std::cout << "[SISInterface::reinitialize_3302]: Configuration complete. " << std::endl;
+   if(isDebug) std::cout << "[SIS3302::ReInitialize]: Configuration complete. " << std::endl;
 
    addr = base_addr + SIS3302_KEY_ARM;
-   rc = CommDriver::vme_read32(vme_handle,addr,0x0);
+   rc = CommDriver::vme_write32(vme_handle,addr,0x0);
+   if(rc!=0){
+      sprintf(msg,"[SIS3302::ReInitialize]: ERROR! Cannot arm system!");
+      std::cout << msg << std::endl;
+   }
 
    return rc;
 } 
@@ -181,11 +185,19 @@ int SIS3302::ReadOutData(std::vector<double> &outData){
    int rc = vme_A32_2EVME_read(vme_handle,addr,&data32[0],NUM_SAMPLES_ul/2,&NumWords);
    // gettimeofday(&gStop,NULL);
    // unsigned long delta_t = gStop.tv_usec - gStart.tv_usec;
- 
+
+   // disarm the sampling logic 
    char msg[512]; 
+   addr = base_addr + SIS3302_KEY_DISARM; 
+   rc   = CommDriver::vme_write32(vme_handle,addr,0x0);
+   if(rc!=0){
+      sprintf(msg,"[SIS3302::ReadOutData]: Cannot disarm system!");
+      std::cout << msg << std::endl;
+   }
+ 
    if( isDebug || rc!=0 ){
       if(rc==0){
-         sprintf(msg,"[SIS3302::ReadOutData]: Block read return code = %d ",rc);
+         sprintf(msg,"[SIS3302::ReadOutData]: Block read return code = %d, num words = %d",rc,NumWords);
       }else{
          sprintf(msg,"[SIS3302::ReadOutData]: ERROR! Block read return code = %d, num words = %d",rc,NumWords);
       }
@@ -212,6 +224,10 @@ int SIS3302::ReadOutData(std::vector<double> &outData){
       outData[i*2]   = D1;
       outData[i*2+1] = D2;
    }
+
+   free(data32);
+
+   fEventNumber++; 
 
    return 0;
 }
