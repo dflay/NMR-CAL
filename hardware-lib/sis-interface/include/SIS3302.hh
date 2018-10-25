@@ -16,6 +16,9 @@ class SIS3302: public SISBase {
       int ReInitialize();
       int ReadOutData(std::vector<double> &outData);
 
+   private: 
+      int set_clock_freq(int vme_handle,int clock_state,int freq_mhz);
+
 }; 
 
 #endif 

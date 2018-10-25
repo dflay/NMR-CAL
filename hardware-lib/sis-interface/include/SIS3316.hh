@@ -17,7 +17,6 @@ class SIS3316: public SISBase {
       int ReadOutData(std::vector<double> &outData);
 
    private: 
-
       int fEventNumber;
       int *fArmedBankFlag; 
 

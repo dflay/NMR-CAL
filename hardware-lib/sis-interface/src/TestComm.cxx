@@ -15,13 +15,14 @@ int main(){
  
    // configuration for the digitizer  
    sisParameters_t par; 
-   par.moduleBaseAddress = 0x41000000;
+   // par.moduleBaseAddress = 0x41000000;  // for the 3316
+   par.moduleBaseAddress = 0x30000000;   // for the 3302 
    par.clockFrequency    = 10;  
    par.clockFreqUnits    = SISInterface::MHz; 
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
    par.outputUnits       = SISInterface::Volts; 
-   par.channelNumber     = 2;
+   par.channelNumber     = 4;
    par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
@@ -29,10 +30,11 @@ int main(){
 
    std::string devPath = "/dev/sis1100_00remote";   // path to the digitizer 
 
-   SIS3316 *my3316 = new SIS3316(par);
-   my3316->SetPath( devPath.c_str() );
-   my3316->OpenConnection();
-   my3316->Initialize(); 
+   // SIS3316 *myADC = new SIS3316(par);
+   SIS3302 *myADC = new SIS3302(par);
+   myADC->SetPath( devPath.c_str() );
+   myADC->OpenConnection();
+   myADC->Initialize();
 
    // now lets read some data 
    std::vector<double> data;
@@ -42,19 +44,20 @@ int main(){
    const int NEV = par.numberOfEvents; 
    for(int i=0;i<NEV;i++){
       std::cout << "Processing event " << i+1 << std::endl;
-      rc = my3316->ReadOutData(data);       
+      rc = myADC->ReadOutData(data);
       if(rc!=0) break; 
-      sprintf(outpath,"./output/sis%d_ch-%02d_%02d.csv",my3316->GetModuleID(),par.channelNumber,i+1);
+      sprintf(outpath,"./output/sis%d_ch-%02d_%02d.csv",myADC->GetModuleID(),par.channelNumber,i+1);
       rc = PrintToFile(outpath,par,data); // print to file 
-      // prepare for next event
-      my3316->ReInitialize();      
+      // prepare for next event (3316 only) 
+      // myADC->ReInitialize();      
       data.clear();
    } 
 
-   my3316->CloseConnection(); 
-
-   delete my3316;
-
+   myADC->CloseConnection(); 
+   delete myADC;
+  
+   std::cout << "Test complete!" << std::endl;
+ 
    return rc;
 }
 //______________________________________________________________________________

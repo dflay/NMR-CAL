@@ -56,10 +56,39 @@ int SIS3302::Initialize(){
          + SIS3302_ACQ_DISABLE_AUTOSTART
          + SIS3302_ACQ_DISABLE_MULTIEVENT;
    }
+
    if(isDebug) std::cout << "[SIS3302::Initialize]: Applying settings..." << std::endl;
-   addr = base_addr + SIS3302_ACQUISTION_CONTROL; 
+   addr = base_addr + SIS3302_ACQUISITION_CONTROL; 
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
    if(isDebug) std::cout << "[SIS3302::Initialize]: --> Done" << std::endl;
+
+   int ClockType = fParameters.clockType;
+   int ClockFreq = (int)fParameters.clockFrequency;
+   int units     = fParameters.clockFreqUnits;
+   int ClockFreq_in_units=0;
+
+   if(units==SISInterface::kHz) ClockFreq_in_units = ClockFreq/1E+3;
+   if(units==SISInterface::MHz) ClockFreq_in_units = ClockFreq/1E+6;
+   if(units==SISInterface::GHz) ClockFreq_in_units = ClockFreq/1E+9;
+
+   rc = set_clock_freq(vme_handle,ClockType,ClockFreq_in_units);
+
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Setting start/stop delays..." << std::endl;
+   addr = base_addr + SIS3302_START_DELAY; 
+   rc = CommDriver::vme_write32(vme_handle,addr,0); // TODO: later use this to cut out a few of the initial noisy usec of probe signal
+   addr = base_addr + SIS3302_STOP_DELAY; 
+   rc = CommDriver::vme_write32(vme_handle,addr,0);  // we almost certainly will never need a stop delay
+   if(isDebug) std::cout << "[SIS3302::Initialize]: --> Done " << std::endl;
+
+   data32 = SIS3302_EVENT_CONF_ENABLE_SAMPLE_LENGTH_STOP; // enable automatic event stop after a certain number of samples
+   addr = base_addr + SIS3302_EVENT_CONFIG_ALL_ADC;
+   rc = CommDriver::vme_write32(vme_handle,addr,data32);
+
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Configuration complete." << std::endl;
+
+   addr = base_addr + SIS3302_KEY_ARM; 
+   rc = CommDriver::vme_write32(vme_handle,addr,0x0);
+
    return rc;
 }
 //______________________________________________________________________________
@@ -164,15 +193,82 @@ int SIS3302::ReadOutData(std::vector<double> &outData){
    }
 
    u_int32_t data1, data2;
+   u_int16_t d1,d2;
+   double D1=0,D2=0;
 
    // convert to an array of unsigned shorts  
    for(int i=0;i<NUM_SAMPLES/2;i++){
       data1          =  data32[i] & 0x0000ffff;             // low bytes 
       data2          = (data32[i] & 0xffff0000)/pow(2,16);  // high bytes 
-      outData[i*2]   = (unsigned short)data1;
-      outData[i*2+1] = (unsigned short)data2;
+      d1             = (unsigned short)data1;
+      d2             = (unsigned short)data2;
+      if( fParameters.outputUnits==SISInterface::Volts ){
+         D1 = ConvertToVoltage(d1); 
+         D2 = ConvertToVoltage(d2); 
+      }else{
+         D1 = (double)d1;
+         D2 = (double)d2;
+      }
+      outData[i*2]   = D1;
+      outData[i*2+1] = D2;
    }
 
    return 0;
+}
+//______________________________________________________________________________
+int SIS3302::set_clock_freq(int vme_handle,int clock_state,int freq_mhz){
+
+   u_int32_t data32=0x0;
+
+   int clock_select=0;
+
+   std::string clockType = "UNKNOWN"; 
+
+   switch(clock_state){
+      case SISInterface::kInternal: // internal clock 
+         switch(freq_mhz){
+            case 1: 
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_1MHZ;
+               clock_select = 1; 
+               break;
+            case 10: 
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_10MHZ;
+               clock_select = 10; 
+               break;
+            case 25: 
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_25MHZ;
+               clock_select = 25; 
+               break;
+            case 50: 
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_50MHZ;
+               clock_select = 50; 
+               break;
+            case 100:
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_100MHZ;
+               clock_select = 100; 
+               break;
+            default:
+               data32 = SIS3302_ACQ_SET_CLOCK_TO_1MHZ;
+               clock_select = 1; 
+               break;
+         }
+         break;
+      case SISInterface::kExternal: // external clock 
+         data32 = SIS3302_ACQ_SET_CLOCK_TO_LEMO_CLOCK_IN;
+         clock_select = freq_mhz;
+         clockType = "EXTERNAL"; 
+         break;
+      default:
+         data32 = SIS3302_ACQ_SET_CLOCK_TO_1MHZ;
+         clock_select = 1;
+         clockType = "INTERNAL"; 
+   }
+
+   std::cout << "[SIS3302::set_clock_freq]: Using an " << clockType << " set to " << clock_select << " MHz" << std::endl;
+
+   u_int32_t base_addr = fParameters.moduleBaseAddress; 
+   u_int32_t addr      = base_addr + SIS3302_ACQUISITION_CONTROL; 
+   int rc              = CommDriver::vme_write32(vme_handle,addr,data32);
+   return rc;
 }
 

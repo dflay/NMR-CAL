@@ -29,7 +29,7 @@
 #define SIS3302_MODID                               0x4	      /* read only; D32 */
 #define SIS3302_IRQ_CONFIG                          0x8       /* read/write; D32 */
 #define SIS3302_IRQ_CONTROL                         0xC       /* read/write; D32 */
-#define SIS3302_ACQUISTION_CONTROL                  0x10      /* read/write; D32 */
+#define SIS3302_ACQUISITION_CONTROL                 0x10      /* read/write; D32 */
 #define SIS3302_START_DELAY                         0x14      /* read/write; D32 */
 #define SIS3302_STOP_DELAY                          0x18      /* read/write; D32 */
 
