@@ -1658,7 +1658,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
       // get the previous (memory) bank address 
       rc = CommDriver::vme_read32(vme_handle,addr,&previous_bank_addr_value); //  
       if(rc!=0) {
-         sprintf(msg,"[CommDriver::vme_read32]: Error: vme_A32D32_read: rc = 0x%08x   addr = 0x%08x", rc,SIS3316_MOD_BASE+addr);
+         sprintf(msg,"[CommDriver::vme_read32]: Error: vme_A32D32_read: rc = 0x%08x addr = 0x%08x", rc,addr);
          std::cout << msg << std::endl;
          return rc;
       }
@@ -1743,10 +1743,10 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
    u_int32_t START_READ_TRANSFER  = 0x80000000;
    // u_int32_t START_WRITE_TRANSFER = 0xC0000000;
 
-      do{
-      addr        = base_addr + SIS3316_DATA_TRANSFER_CH1_4_CTRL_REG + ( ( (channel_no >> 2) & 0x3) * 4 );
-      // data        = 0x80000000 + memory_bank_offset_addr;   
-      data        = START_READ_TRANSFER + memory_bank_offset_addr;
+   do{
+      addr = base_addr + SIS3316_DATA_TRANSFER_CH1_4_CTRL_REG + ( ( (channel_no >> 2) & 0x3) * 4 );
+      // data = 0x80000000 + memory_bank_offset_addr;   
+      data = START_READ_TRANSFER + memory_bank_offset_addr;
       // data = start read transfer (0x80000000) of the given address of channel no.  
       rc = CommDriver::vme_write32(vme_handle,addr,data);
       // rc = i->vme_A32D32_write(this->baseaddress + addr, data);
@@ -1756,7 +1756,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
          // return rc;
       }else{
          // readout 
-         addr                = base_addr + SIS3316_MOD_BASE + SIS3316_FPGA_ADC1_MEM_BASE + (((channel_no >> 2) & 0x3 )* SIS3316_FPGA_ADC_MEM_OFFSET);
+         addr = base_addr + SIS3316_FPGA_ADC1_MEM_BASE + (((channel_no >> 2) & 0x3 )* SIS3316_FPGA_ADC_MEM_OFFSET);
          req_nof_32bit_words = previous_bank_addr_value & 0xffffff ;  // get the lowest 24 bits 
          // printf("number of 32-bit words: %d (0x%08x) \n",req_nof_32bit_words,req_nof_32bit_words); 
 
@@ -1772,11 +1772,10 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
 
          if(rc!=0){
             sprintf(msg,"[SIS3316::read_DMA_Channel_PreviousBankDataBuffer]: Error: vme_A32MBLT64FIFO_read: rc = 0x%08x   addr = 0x%08x  req_nof_32bit_words = 0x%08x",
-                    rc,addr,req_nof_32bit_words);
+                  rc,addr,req_nof_32bit_words);
             std::cout << msg << std::endl;
             return rc;
          }
-
          // *dma_got_nof_words = req_nof_32bit_words;
          *dma_got_nof_words = got_nof_32bit_words;
       }

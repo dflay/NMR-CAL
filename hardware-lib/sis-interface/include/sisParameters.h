@@ -20,7 +20,7 @@ typedef struct sisParameters {
    // default constructor
    sisParameters(u_int32_t addr=0x0,
                 double clkFreq=0,double sigLen=0,
-                int clkUnits=0,int sigUnits=0,int modID=0,int chNum=0,int nev=0,int nsmpl=0,int clkType=0,int mev=0,bool d=false):
+                int clkUnits=0,int sigUnits=0,int modID=0,int chNum=1,int nev=1,int nsmpl=0,int clkType=0,int mev=0,bool d=false):
       moduleBaseAddress(addr),clockFrequency(clkFreq),signalLength(sigLen),
       clockFreqUnits(clkUnits),signalLengthUnits(sigUnits),moduleID(modID),channelNumber(chNum),numberOfEvents(nev),
       numberOfSamples(nsmpl),clockType(clkType),multiEventState(mev),debug(d) {} 
