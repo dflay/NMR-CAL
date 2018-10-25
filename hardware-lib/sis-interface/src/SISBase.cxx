@@ -85,8 +85,7 @@ int SISBase::ReadModuleID(){
       modID  =  data >> 16;
       majRev = (data >> 8) & 0xff;  
       minRev =  data & 0xff; 
-      // fParameters.moduleID = modID;
-      sprintf(msg,"[SISBase::ReadModuleID]: Device info: Module ID = %04x, maj. rev. = %02x, min. rev. = %02x",modID,majRev,minRev); 
+      sprintf(msg,"[SISBase::ReadModuleID]: Module ID = %04x, maj. rev. = %02x, min. rev. = %02x",modID,majRev,minRev); 
       sprintf(MID,"%04x",modID);
       fParameters.moduleID = std::atoi(MID);  
       if(isDebug) std::cout << msg << std::endl; 
