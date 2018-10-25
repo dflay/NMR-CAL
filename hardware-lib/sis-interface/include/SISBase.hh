@@ -59,7 +59,6 @@ class SISBase: public Device {
 
       void SetParameters( sisParameters_t par = sisParameters() ); 
       void SetModuleBaseAddress(u_int32_t addr) { fParameters.moduleBaseAddress = addr;  }
-      void SetModuleID(int modID)               { fParameters.moduleID          = modID; }
       void SetChannelNumber(int ch)             { fParameters.channelNumber     = ch;    } 
       void SetNumberOfEvents(int nev)           { fParameters.numberOfEvents    = nev;   }   
       void SetClockType(int t)                  { fParameters.clockType         = t;     }

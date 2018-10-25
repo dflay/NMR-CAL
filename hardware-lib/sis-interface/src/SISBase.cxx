@@ -24,8 +24,6 @@ void SISBase::SetParameters(sisParameters_t par){
    // since they come with their own units  
    SetClockFrequency(par.clockFrequency,par.clockFreqUnits); 
    SetSignalLength(par.signalLength,par.signalLengthUnits);  
-   // derived terms  
-   fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;  
 }
 //______________________________________________________________________________
 void SISBase::SetClockFrequency(double freq,int units){
@@ -38,6 +36,8 @@ void SISBase::SetClockFrequency(double freq,int units){
    if(units==SISInterface::GHz) sf = 1E+9;
    fParameters.clockFrequency  = sf*freq;
    fParameters.clockFreqUnits  = units;  
+   // derived terms  
+   fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;
 }
 //______________________________________________________________________________
 void SISBase::SetSignalLength(double x,int units){
@@ -50,6 +50,8 @@ void SISBase::SetSignalLength(double x,int units){
    if(units==SISInterface::sec ) sf = 1;
    fParameters.signalLength      = sf*x;
    fParameters.signalLengthUnits = units;  
+   // derived terms  
+   fParameters.numberOfSamples = fParameters.signalLength*fParameters.clockFrequency;
 }
 //______________________________________________________________________________
 int SISBase::Initialize(){
