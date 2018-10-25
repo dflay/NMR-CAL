@@ -111,7 +111,7 @@ int SIS3302::ReInitialize(){
    return rc;
 } 
 //______________________________________________________________________________
-int SIS3302::ReadOutData(std::vector<unsigned short> &outData){
+int SIS3302::ReadOutData(std::vector<double> &outData){
 
    // read out a single pulse to the fData vector  
 

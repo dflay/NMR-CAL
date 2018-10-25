@@ -7,7 +7,7 @@
 #include "SIS3302.hh"
 #include "SIS3316.hh"
 
-int PrintToFile(const char *outpath,sisParameters_t par,std::vector<unsigned short> data); 
+int PrintToFile(const char *outpath,sisParameters_t par,std::vector<double> data); 
 
 int main(){
 
@@ -20,7 +20,8 @@ int main(){
    par.clockFreqUnits    = SISInterface::MHz; 
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
-   par.channelNumber     = 1;
+   par.outputUnits       = SISInterface::kVoltage; 
+   par.channelNumber     = 2;
    par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
@@ -34,7 +35,7 @@ int main(){
    my3316->Initialize(); 
 
    // now lets read some data 
-   std::vector<unsigned short> data;
+   std::vector<double> data;
 
    char outpath[512]; 
 
@@ -43,7 +44,7 @@ int main(){
       std::cout << "Processing event " << i+1 << std::endl;
       rc = my3316->ReadOutData(data);       
       if(rc!=0) break; 
-      sprintf(outpath,"./output/sis%d_%02d.csv",my3316->GetModuleID(),i+1);
+      sprintf(outpath,"./output/sis%d_ch-%02d_%02d.csv",my3316->GetModuleID(),par.channelNumber,i+1);
       rc = PrintToFile(outpath,par,data); // print to file 
       // prepare for next event
       my3316->ReInitialize();      
@@ -57,7 +58,7 @@ int main(){
    return rc;
 }
 //______________________________________________________________________________
-int PrintToFile(const char *outpath,sisParameters_t par,std::vector<unsigned short> data){
+int PrintToFile(const char *outpath,sisParameters_t par,std::vector<double> data){
    // print the data to a CSV file 
    double sf=1;
    if( par.clockFreqUnits==SISInterface::Hz  ) sf = 1;

@@ -393,6 +393,7 @@ int SIS3316::ReInitialize(){
       std::cout << msg << std::endl;
    }
 
+
    unsigned long int data_low=0;
    unsigned long int data_high=0;
    unsigned long int sum=0;
@@ -1879,7 +1880,7 @@ int SIS3316::read_DMA_Channel_PreviousBankDataBuffer(int vme_handle,            
    return 0;
 }
 //______________________________________________________________________________
-int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
+int SIS3316::ReadOutData(std::vector<double> &outData){
 
    // Samples an NMR pulse when called.  After the address threshold is reached 
    // for a single event (i.e., pulse), the current memory bank is disarmed and the idle 
@@ -1923,6 +1924,10 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
    u_int32_t *adc_buffer    = static_cast<u_int32_t *>( malloc( sizeof(u_int32_t)*SIZE     ) );
    // u_int16_t *adc_buffer_us = static_cast<u_int16_t *>( malloc( sizeof(u_int16_t)*(2*SIZE) ) );
    outData.resize(SIZE);  
+
+   // for converting to units 
+   double D1=0,D2=0;
+   u_int16_t d1=0,d2=0;
 
    u_int32_t read_data=0,read_data_2=0,addr_thresh=0;
    u_int32_t data_low=0,data_high=0;
@@ -2058,8 +2063,17 @@ int SIS3316::ReadOutData(std::vector<unsigned short> &outData){
          for(i=0;i<got_nof_32bit_words;i++){
             data_low       =  adc_buffer[i] & 0x0000ffff;
             data_high      = (adc_buffer[i] & 0xffff0000)/pow(2,16);
-            outData[i*2]   = (u_int16_t)data_low;
-            outData[i*2+1] = (u_int16_t)data_high;
+            d1             = (u_int16_t)data_low;
+            d2             = (u_int16_t)data_high;
+            if( fParameters.outputUnits==SISInterface::kVoltage ){
+               D1 = ConvertToVoltage(d1);
+               D2 = ConvertToVoltage(d2);
+            }else{
+               D1 = (double)d1;
+               D2 = (double)d2;
+            }
+            outData[i*2]   = D1;
+            outData[i*2+1] = D2;
          }
          if(isDebug){
             sprintf(msg,"[SIS3316::ReadOutData]: Event %d: Recorded %d 32-bit data-words.",fEventNumber,got_nof_32bit_words);

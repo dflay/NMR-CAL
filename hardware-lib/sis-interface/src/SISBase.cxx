@@ -14,7 +14,8 @@ SISBase::~SISBase(){
 //______________________________________________________________________________
 void SISBase::SetParameters(sisParameters_t par){
    fParameters.moduleBaseAddress  = par.moduleBaseAddress;  
-   fParameters.moduleID           = par.moduleID;  
+   fParameters.moduleID           = par.moduleID;
+   fParameters.outputUnits        = par.outputUnits;   
    fParameters.channelNumber      = par.channelNumber;  
    fParameters.numberOfEvents     = par.numberOfEvents;  
    fParameters.clockType          = par.clockType;  
@@ -62,7 +63,7 @@ int SISBase::ReInitialize(){
    return 0;
 }
 //______________________________________________________________________________
-int SISBase::ReadOutData(std::vector<unsigned short> &x){
+int SISBase::ReadOutData(std::vector<double> &x){
    return 0;
 }
 //______________________________________________________________________________
@@ -91,4 +92,18 @@ int SISBase::ReadModuleID(){
       if(isDebug) std::cout << msg << std::endl; 
    }
    return 0;
+}
+//______________________________________________________________________________
+double SISBase::ConvertToVoltage(unsigned short x){
+   int modID = fParameters.moduleID; 
+   double p[2] = {0,0};
+   if(modID==3302){
+      p[0] = 32599.9;
+      p[1] = 30465.9;
+   }else if(modID==3316){
+      p[0] = 32558.5;
+      p[1] = 12629.5;
+   }
+   double y = ( (double)x-p[0] )/p[1];
+   return y;
 }

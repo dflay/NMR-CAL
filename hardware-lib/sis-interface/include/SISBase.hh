@@ -32,6 +32,11 @@ namespace SISInterface {
       usec = 2,
       nsec = 3 
    };
+
+   enum amplUnits{
+      kADCCounts = 0,
+      kVoltage   = 1
+   }; 
  
    enum clkType{
       kInternal = 0,
@@ -52,13 +57,14 @@ class SISBase: public Device {
 
       virtual int Initialize();
       virtual int ReInitialize(); 
-      virtual int ReadOutData(std::vector<unsigned short> &x); 
+      virtual int ReadOutData(std::vector<double> &x); 
 
       int ReadModuleID();
       int GetModuleID()                   const { return fParameters.moduleID; }
 
       void SetParameters( sisParameters_t par = sisParameters() ); 
       void SetModuleBaseAddress(u_int32_t addr) { fParameters.moduleBaseAddress = addr;  }
+      void SetOutputUnits(int u)                { fParameters.outputUnits       = u;     } 
       void SetChannelNumber(int ch)             { fParameters.channelNumber     = ch;    } 
       void SetNumberOfEvents(int nev)           { fParameters.numberOfEvents    = nev;   }   
       void SetClockType(int t)                  { fParameters.clockType         = t;     }
@@ -69,6 +75,8 @@ class SISBase: public Device {
 
    protected:
       sisParameters_t fParameters;
+      
+      double ConvertToVoltage(unsigned short x); 
 
 };
 

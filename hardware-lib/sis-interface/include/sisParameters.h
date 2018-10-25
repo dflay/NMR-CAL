@@ -7,6 +7,7 @@ typedef struct sisParameters {
    u_int32_t moduleBaseAddress;      // address of digitizer (numbers from the two swtiches on the device)  
    double clockFrequency;            // clock frequency in Hz [computed using input units below]
    double signalLength;              // time duration of anticipated signal in sec 
+   int outputUnits;                  // ADCCounts or Voltage
    int clockFreqUnits;               // [INPUT] kHz, MHz, GHz 
    int signalLengthUnits;            // [INPUT] usec, msec, sec
    int moduleID;                     // 3302 or 3316 
@@ -19,10 +20,10 @@ typedef struct sisParameters {
 
    // default constructor
    sisParameters(u_int32_t addr=0x0,
-                double clkFreq=0,double sigLen=0,
+                double clkFreq=0,double sigLen=0,int ounits=0,
                 int clkUnits=0,int sigUnits=0,int modID=0,int chNum=1,int nev=1,int nsmpl=0,int clkType=0,int mev=0,bool d=false):
       moduleBaseAddress(addr),clockFrequency(clkFreq),signalLength(sigLen),
-      clockFreqUnits(clkUnits),signalLengthUnits(sigUnits),moduleID(modID),channelNumber(chNum),numberOfEvents(nev),
+      outputUnits(ounits),clockFreqUnits(clkUnits),signalLengthUnits(sigUnits),moduleID(modID),channelNumber(chNum),numberOfEvents(nev),
       numberOfSamples(nsmpl),clockType(clkType),multiEventState(mev),debug(d) {} 
 
 } sisParameters_t;
