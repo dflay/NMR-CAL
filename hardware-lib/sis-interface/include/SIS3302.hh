@@ -8,11 +8,7 @@
 #include <fstream> 
 #include <string>
 
-#include "sisParameters.h"
 #include "SISBase.hh"
-#include "Device.hh"
-#include "CommDriver.hh"
-
 #include "sis3302_var.h"
 
 class SIS3302: public SISBase { 
