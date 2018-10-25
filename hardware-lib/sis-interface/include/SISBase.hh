@@ -35,7 +35,7 @@ namespace SISInterface {
 
    enum amplUnits{
       kADCCounts = 0,
-      kVoltage   = 1
+      kVolts     = 1
    }; 
  
    enum clkType{
