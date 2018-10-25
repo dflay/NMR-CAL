@@ -16,10 +16,9 @@
 #include "sis1100_var.h"
 #include "sis3100_vme_calls.h"
 
-#define MAX_NUMBER_LWORDS_64MBYTE 0x1000000       // 64MB 
+#define MAX_NUMBER_LWORDS_64MBYTE 0x1000000 // 64MB 
 
 namespace SISInterface {
-
    enum freqUnits{
       Hz  = 0,
       kHz = 1,
@@ -56,6 +55,7 @@ class SISBase: public Device {
       virtual int ReadOutData(std::vector<unsigned short> &x); 
 
       int ReadModuleID();
+      int GetModuleID()                   const { return fParameters.moduleID; }
 
       void SetParameters( sisParameters_t par = sisParameters() ); 
       void SetModuleBaseAddress(u_int32_t addr) { fParameters.moduleBaseAddress = addr;  }
@@ -67,8 +67,6 @@ class SISBase: public Device {
       void SetDebugMode(bool t)                 { fParameters.debug             = t;     }
       void SetClockFrequency(double f,int units=SISInterface::Hz); 
       void SetSignalLength(double x,int units=SISInterface::sec); 
-     
-      int GetModuleID()                           const { return fParameters.moduleID; }
 
    protected:
       sisParameters_t fParameters;
