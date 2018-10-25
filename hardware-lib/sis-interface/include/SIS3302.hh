@@ -3,11 +3,6 @@
 
 // implementation of SIS3302 class
 
-#include <cstdlib> 
-#include <iostream> 
-#include <fstream> 
-#include <string>
-
 #include "SISBase.hh"
 #include "sis3302_var.h"
 
