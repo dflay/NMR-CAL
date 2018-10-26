@@ -15,8 +15,8 @@ int main(){
  
    // configuration for the digitizer  
    sisParameters_t par; 
-   // par.moduleBaseAddress = 0x41000000;  // for the 3316
-   par.moduleBaseAddress = 0x30000000;   // for the 3302 
+   par.moduleBaseAddress = 0x41000000;  // for the 3316
+   // par.moduleBaseAddress = 0x30000000;   // for the 3302 
    par.clockFrequency    = 10;  
    par.clockFreqUnits    = SISInterface::MHz; 
    par.signalLength      = 60.; 
@@ -30,8 +30,8 @@ int main(){
 
    std::string devPath = "/dev/sis1100_00remote";   // path to the digitizer 
 
-   // SIS3316 *myADC = new SIS3316(par);
-   SIS3302 *myADC = new SIS3302(par);
+   SIS3316 *myADC = new SIS3316(par);
+   // SIS3302 *myADC = new SIS3302(par);
    myADC->SetPath( devPath.c_str() );
    myADC->OpenConnection();
    myADC->Initialize();
