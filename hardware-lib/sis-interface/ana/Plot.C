@@ -24,7 +24,7 @@ int Plot(){
    std::string testDir = "50-Ohm-2"; 
 
    char path[700],prefix[700];
-   sprintf(prefix,"./output/%04d/ch-%02d/%s",modID,chNum,testDir.c_str());
+   sprintf(prefix,"../output/%04d/ch-%02d/%s",modID,chNum,testDir.c_str());
    std::string inpath = "NONE";
  
    std::cout << "Plotting data from " << prefix << std::endl;
