@@ -22,7 +22,7 @@ int main(){
    par.signalLength      = 60.; 
    par.signalLengthUnits = SISInterface::msec;
    par.outputUnits       = SISInterface::Volts; 
-   par.channelNumber     = 4;
+   par.channelNumber     = 1;
    par.numberOfEvents    = 10; 
    par.clockType         = SISInterface::kExternal; 
    par.multiEventState   = SISInterface::kDisable; 
@@ -35,8 +35,6 @@ int main(){
    myADC->SetPath( devPath.c_str() );
    myADC->OpenConnection();
    myADC->Initialize();
-
-   std::cout << "READY" << std::endl;
 
    // now lets read some data 
    std::vector<double> data;

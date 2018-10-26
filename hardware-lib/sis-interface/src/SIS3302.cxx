@@ -41,21 +41,21 @@ int SIS3302::Initialize(){
    // general configuration settings
    if(multiEventState==0){
       // multi-event state disabled
-      std::cout << "[SIS3302::Initialize]: ADC in SINGLE-EVENT mode. \n" << std::endl;
+      std::cout << "[SIS3302::Initialize]: ADC in SINGLE-EVENT mode" << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
-         + SIS3302_ACQ_DISABLE_AUTOSTART
-         + SIS3302_ACQ_DISABLE_MULTIEVENT;
+             + SIS3302_ACQ_DISABLE_AUTOSTART
+             + SIS3302_ACQ_DISABLE_MULTIEVENT;
    }else if(multiEventState==1){
       // multi-event state enabled
-      std::cout<< "[SIS3302::Initialize]: ADC in MULTI-EVENT mode. \n" << std::endl;
+      std::cout<< "[SIS3302::Initialize]: ADC in MULTI-EVENT mode" << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
-         + SIS3302_ACQ_DISABLE_AUTOSTART
-         + SIS3302_ACQ_ENABLE_MULTIEVENT;
+             + SIS3302_ACQ_DISABLE_AUTOSTART
+             + SIS3302_ACQ_ENABLE_MULTIEVENT;
    }else{
-      std::cout << "[SIS3302::Initialize]: ADC event mode not properly set!  Defaulting to single-event mode..." << std::endl;
+      std::cout << "[SIS3302::Initialize]: ADC event mode not properly set!  Defaulting to single-event mode" << std::endl;
       data32 = SIS3302_ACQ_DISABLE_LEMO_START_STOP
-         + SIS3302_ACQ_DISABLE_AUTOSTART
-         + SIS3302_ACQ_DISABLE_MULTIEVENT;
+             + SIS3302_ACQ_DISABLE_AUTOSTART
+             + SIS3302_ACQ_DISABLE_MULTIEVENT;
    }
 
    if(isDebug) std::cout << "[SIS3302::Initialize]: Applying settings..." << std::endl;
@@ -85,13 +85,15 @@ int SIS3302::Initialize(){
    addr = base_addr + SIS3302_EVENT_CONFIG_ALL_ADC;
    rc = CommDriver::vme_write32(vme_handle,addr,data32);
 
-   if(isDebug) std::cout << "[SIS3302::Initialize]: Configuration complete." << std::endl;
-
-   addr = base_addr + SIS3302_KEY_ARM; 
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Clearing the timestamp... " << std::endl;
+   addr = base_addr + SIS3302_KEY_TIMESTAMP_CLR;
    rc = CommDriver::vme_write32(vme_handle,addr,0x0);
+   if(rc!=0) std::cout << "[SIS3302::Initialize]: --> Done " << std::endl;
 
    // set the event length as well
-   rc = ReInitialize(); 
+   rc = ReInitialize();
+ 
+   if(isDebug) std::cout << "[SIS3302::Initialize]: Configuration complete." << std::endl;
 
    return rc;
 }
@@ -147,6 +149,7 @@ int SIS3302::ReInitialize(){
 int SIS3302::ReadOutData(std::vector<double> &outData){
 
    // read out a single pulse to the fData vector  
+   char msg[512]; 
 
    bool isDebug             = fParameters.debug;  
 
@@ -160,9 +163,27 @@ int SIS3302::ReadOutData(std::vector<double> &outData){
 
    u_int32_t *data32       = (u_int32_t *)malloc( sizeof(u_int32_t)*NUM_SAMPLES );
 
+   // start sampling the data
+   u_int32_t addr = base_addr + SIS3302_KEY_START;
+   int rc = CommDriver::vme_write32(vme_handle,addr,0x0);
+   if(rc!=0){
+      std::cout << "[SIS3302::ReadOutData]: Cannot start sampling!" << std::endl;
+      return 1;
+   }
+
+   // stop sampling AFTER the anticipated event length 
+   int timeDelay = (int)( fParameters.signalLength/1E-6 ) + 100; // in microseconds; add on 100 usec for safety   
+   usleep(timeDelay);
+
+   addr = base_addr + SIS3302_KEY_STOP;  
+   rc = CommDriver::vme_write32(vme_handle,addr,0x0);
+   if(rc!=0){
+      std::cout << "[SIS3302::ReadOutData]: Cannot stop sampling!" << std::endl;
+      return 1;
+   }
+   
    // block read of data from ADC
    // gettimeofday(&gStart,NULL);
-   u_int32_t addr=0x0;
    if(chNumber==1){
      addr = base_addr + SIS3302_ADC1_OFFSET;
    }else if(chNumber==2){
@@ -182,18 +203,9 @@ int SIS3302::ReadOutData(std::vector<double> &outData){
    }
 
    u_int32_t NumWords = 0;
-   int rc = vme_A32_2EVME_read(vme_handle,addr,&data32[0],NUM_SAMPLES_ul/2,&NumWords);
+   rc = vme_A32_2EVME_read(vme_handle,addr,&data32[0],NUM_SAMPLES_ul/2,&NumWords);
    // gettimeofday(&gStop,NULL);
    // unsigned long delta_t = gStop.tv_usec - gStart.tv_usec;
-
-   // disarm the sampling logic 
-   char msg[512]; 
-   addr = base_addr + SIS3302_KEY_DISARM; 
-   rc   = CommDriver::vme_write32(vme_handle,addr,0x0);
-   if(rc!=0){
-      sprintf(msg,"[SIS3302::ReadOutData]: Cannot disarm system!");
-      std::cout << msg << std::endl;
-   }
  
    if( isDebug || rc!=0 ){
       if(rc==0){
